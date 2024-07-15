@@ -20,4 +20,10 @@ class TravelApi {
   static const update = "$hostConnect/travel/inquiry_info_update.jsp";
   static const cancleStatistics = "$hostConnect/travel/hotel_cancel.jsp";
   static const inquiryDelete = "$hostConnect/travel/room_inquiry_delete.jsp";
+  static const cancelGraph = "$hostConnect/travel/statistics.jsp";
+  static const cancelGraph2 = "$hostConnect/travel/statistics_in.jsp";
+  static const allGraph = "$hostConnect/travel/all_statistics.jsp";
+  static const travelUpload = "$hostConnect/travel/travel_info_insert.jsp";
+  static const travelList = "$hostConnect/travel/travel_list.jsp";
+  static const travelStaticDetail = "$hostConnect/travel/resv_all.jsp";
 }

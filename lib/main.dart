@@ -3,7 +3,7 @@ import 'package:flutter_application_hotel/index/index.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_application_hotel/travel_layout/TravelInfo.dart';
 
-void main() {
+void main() async {
   runApp(const MyApp());
 }
 

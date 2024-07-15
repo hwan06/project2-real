@@ -70,11 +70,6 @@ class _TravelInquiryAfterListState extends State<TravelInquiryAfterList> {
             hasData = false;
           });
         }
-      } else {
-        setState(() {
-          isLoading = false;
-          hasData = false;
-        });
       }
     } catch (e) {
       setState(() {

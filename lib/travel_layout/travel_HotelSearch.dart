@@ -34,7 +34,7 @@ class _searchBarState extends State<searchBar> {
             hotelName = jsonDecode(response.body)['hotel_list'];
           });
         }
-      } else {}
+      }
     } catch (e) {}
   }
 

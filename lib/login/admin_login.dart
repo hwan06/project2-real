@@ -2,9 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_application_hotel/api/admin_api.dart';
-import 'package:flutter_application_hotel/admin_layout/admin_index.dart';
-import 'package:flutter_application_hotel/hotel_layout/hotel_confirm.dart';
-import 'package:flutter_application_hotel/login/hotel_signup.dart';
+import 'package:flutter_application_hotel/admin_layout/admin_Index.dart';
+import 'package:flutter_application_hotel/login/hotel_HotelUserSignUp.dart';
 import 'package:http/http.dart' as http;
 
 class Login extends StatefulWidget {
@@ -65,7 +64,7 @@ class LoginState extends State<Login> {
 
   complete() {
     return Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => const admin_index()));
+        context, MaterialPageRoute(builder: (context) => const AdminIndex()));
   }
 
   Future<void> neverSatisfied() async {
@@ -138,8 +137,9 @@ class LoginState extends State<Login> {
           child: Form(
               key: formKey,
               child: Container(
-                padding: const EdgeInsets.only(top: 40.0),
+                padding: const EdgeInsets.only(bottom: 300.0),
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -199,13 +199,7 @@ class LoginState extends State<Login> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          const confirm_hotel()));
-                            },
+                            onTap: () {},
                             child: const MouseRegion(
                               cursor: SystemMouseCursors.click,
                               child: Row(
@@ -233,8 +227,7 @@ class LoginState extends State<Login> {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) =>
-                                          const HotelSignUp()));
+                                      builder: (context) => const HotelSign()));
                             },
                             child: const MouseRegion(
                               cursor: SystemMouseCursors.click,
@@ -263,8 +256,7 @@ class LoginState extends State<Login> {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) =>
-                                          const HotelSignUp()));
+                                      builder: (context) => const HotelSign()));
                             },
                             child: const MouseRegion(
                               cursor: SystemMouseCursors.click,

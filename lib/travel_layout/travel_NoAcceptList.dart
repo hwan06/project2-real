@@ -4,18 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_hotel/api/travel_api.dart';
 import 'package:flutter_application_hotel/travel_layout/TravelInfo.dart';
 import 'package:flutter_application_hotel/travel_layout/travel_InquiryPage.dart';
-import 'package:flutter_application_hotel/travel_layout/travel_confirmListDetail.dart';
+import 'package:flutter_application_hotel/travel_layout/travel_NoAcceptDetail.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
-class ReservationConfirmList extends StatefulWidget {
-  const ReservationConfirmList({super.key});
+class ReservationNoAcceptList extends StatefulWidget {
+  const ReservationNoAcceptList({super.key});
 
   @override
-  _ReservationConfirmListState createState() => _ReservationConfirmListState();
+  _ReservationNoAcceptListState createState() =>
+      _ReservationNoAcceptListState();
 }
 
-class _ReservationConfirmListState extends State<ReservationConfirmList> {
+class _ReservationNoAcceptListState extends State<ReservationNoAcceptList> {
   List<Map<String, dynamic>> _userData = []; // 데이터베이스에서 가져온 사용자 데이터
   var reservation_id = "";
   var hotelID = "";
@@ -43,8 +44,8 @@ class _ReservationConfirmListState extends State<ReservationConfirmList> {
 
     try {
       var response = await http.post(Uri.parse(TravelApi.resvSelect), body: {
-        'travel_reservation_status': "1",
-        'hotel_reservation_status': "1",
+        'travel_reservation_status': "4",
+        'hotel_reservation_status': "4",
         "agency_id": travelID,
       });
 
@@ -53,6 +54,7 @@ class _ReservationConfirmListState extends State<ReservationConfirmList> {
 
         if (responseBody['success'] == true) {
           List<dynamic>? userDataList = responseBody['resv_list'];
+          print(userDataList);
 
           setState(() {
             _userData = userDataList!.map((userData) {
@@ -150,7 +152,7 @@ class _ReservationConfirmListState extends State<ReservationConfirmList> {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => confirmListDetail(ReserverInfo: userData),
+        builder: (context) => NoAcceptDetail(ReserverInfo: userData),
       ),
     );
 
@@ -175,7 +177,7 @@ class _ReservationConfirmListState extends State<ReservationConfirmList> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          '최종컨펌대기 리스트',
+          '예약불가 리스트',
           style: TextStyle(
             fontFamily: 'Pretendard',
             fontWeight: FontWeight.w600,

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_hotel/api/hotel_api.dart';
+import 'package:flutter_application_hotel/api/travel_api.dart';
 import 'package:flutter_application_hotel/travel_layout/TravelInfo.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_application_hotel/api/travel_api.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -58,6 +59,8 @@ class _UpdatePageState extends State<UpdatePage> {
     guestController = TextEditingController(text: widget.guest);
     nightController = TextEditingController(text: widget.night);
     priceController = TextEditingController(text: widget.price);
+    nameController = TextEditingController(text: widget.name);
+    phoneController = TextEditingController(text: widget.phone);
     _nightCount = _endDate!.difference(_startDate!).inDays;
     final userData = Provider.of<UserData>(context, listen: false);
     username = userData.name.toString();
@@ -109,7 +112,7 @@ class _UpdatePageState extends State<UpdatePage> {
     });
   }
 
-  Future<void> _Confirm(String id) async {
+  Future<void> _Confirm() async {
     return showDialog<void>(
       //다이얼로그 위젯 소환
       context: context,
@@ -131,7 +134,7 @@ class _UpdatePageState extends State<UpdatePage> {
               ),
               onPressed: () {
                 Navigator.of(context).pop();
-                update(id);
+                update();
               },
             ),
             TextButton(
@@ -152,43 +155,34 @@ class _UpdatePageState extends State<UpdatePage> {
     );
   }
 
-  Future<void> update(String id) async {
+  Future<void> update() async {
     try {
-      var response = await http.post(Uri.parse(TravelApi.update), body: {
-        'inquirer_name': username.toString(),
-        'inquirer_tel': userTel.toString(),
+      var response = await http.post(Uri.parse(HotelApi.resvInfoUpdate), body: {
+        'inquirer_name': nameController.text.trim().toString(),
+        'inquirer_tel': phoneController.text.trim().toString(),
         'check_in_date': _startDate.toString().replaceAll(",", "").trim(),
         'check_out_date': _endDate.toString().replaceAll(",", "").trim(),
         'night_count': nightController.text.trim(),
         'guest_count': guestController.text.trim().toString(),
         'room_count': roomCountController.text.trim().toString(),
         'hotel_price': priceController.text.trim().toString(),
-        'reservation_id': id.toString(),
+        'reservation_id': reservation_id.toString().trim(),
       });
 
       if (response.statusCode == 200) {
         if (mounted) {
-          Navigator.pop(context, true);
+          Navigator.pop(context, reservation_id);
         }
       }
-      print('안바뀜');
     } catch (e) {}
   }
 
   @override
   Widget build(BuildContext context) {
-    String name = username;
-    String phone = userTel;
     DateTime startDate = _startDate ?? widget.startDate;
     DateTime endDate = _endDate ?? widget.endDate;
-    String roomcount = widget.roomcount;
-    String guest = widget.guest;
-    String night = widget.night;
     String price = widget.price;
     reservation_id = widget.reservationID;
-
-    nameController = TextEditingController(text: name);
-    phoneController = TextEditingController(text: phone);
 
     return Scaffold(
       appBar: AppBar(
@@ -365,7 +359,8 @@ class _UpdatePageState extends State<UpdatePage> {
                   width: 250,
                   child: OutlinedButton(
                     onPressed: () {
-                      _Confirm(reservation_id);
+                      _Confirm();
+                      print(price);
                     },
                     style: OutlinedButton.styleFrom(
                       backgroundColor: Colors.white,

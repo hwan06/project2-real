@@ -21,4 +21,10 @@ class HotelApi {
       "$hostConnect/hotel/room_inquiry_answer_update.jsp";
   static const inquiryDelete =
       "$hostConnect/hotel/room_inquiry_answer_delete.jsp";
+  static const cancelGraph = "$hostConnect/hotel/statistics.jsp";
+  static const cancelGraph2 = "$hostConnect/hotel/statistics_in.jsp";
+  static const allGraph = "$hostConnect/hotel/all_statistics.jsp";
+  static const hotelUpload = "$hostConnect/hotel/hotel_info_insert.jsp";
+  static const hotelList = "$hostConnect/hotel/hotel_list.jsp";
+  static const hotelStatisticDetail = "$hostConnect/hotel/resv_all.jsp";
 }

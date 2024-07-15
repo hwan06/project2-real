@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_hotel/api/hotel_api.dart';
 import 'package:flutter_application_hotel/travel_layout/TravelInfo.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_application_hotel/api/travel_api.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 

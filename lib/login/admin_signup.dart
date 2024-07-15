@@ -69,7 +69,7 @@ class _SignState extends State<adminSignUp> {
           "admin_name": adminNameController.text.trim(),
         },
       );
-      print(res.body);
+
       if (res.statusCode == 200) {
         var resSignup = jsonDecode(res.body);
         signUpComplete();

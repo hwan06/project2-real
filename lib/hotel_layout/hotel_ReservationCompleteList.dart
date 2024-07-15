@@ -77,51 +77,6 @@ class _ReservationCompleteState extends State<ReservationComplete> {
     }
   }
 
-  Future<void> resvCancel(String reservationId) async {
-    try {
-      var response = await http.post(Uri.parse(TravelApi.resvUpdate), body: {
-        'reservation_id': reservationId,
-        'hotel_reservation_status': "3"
-      });
-
-      if (response.statusCode == 200) {
-        _fetchUserDataFromApi();
-      }
-    } catch (e) {
-      print("Error canceling reservation: $e");
-    }
-  }
-
-  Future<void> _cancelConfirm(String reservationId) async {
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('예약을 취소하시겠습니까?'),
-          actions: [
-            TextButton(
-              child: const Text(
-                '확인',
-                style: TextStyle(fontFamily: 'Pretendard', color: Colors.red),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-                resvCancel(reservationId);
-              },
-            ),
-            TextButton(
-              child: const Text('닫기'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   void viewDetail(Map<String, dynamic> userData) {
     Navigator.push(
       context,

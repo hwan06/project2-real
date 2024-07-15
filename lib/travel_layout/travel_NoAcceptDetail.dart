@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_hotel/travel_layout/travel_Update.dart';
+import 'package:flutter_application_hotel/api/hotel_api.dart';
+import 'package:flutter_application_hotel/travel_layout/travel_TravelUpdate.dart';
+import 'package:get/utils.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_application_hotel/api/travel_api.dart';
 
-class ContinueDetail extends StatefulWidget {
+class NoAcceptDetail extends StatefulWidget {
   final Map<String, dynamic> ReserverInfo;
-  const ContinueDetail({
+  const NoAcceptDetail({
     super.key,
     required this.ReserverInfo,
   });
 
   @override
-  State<ContinueDetail> createState() => _ContinueDetailState();
+  State<NoAcceptDetail> createState() => _NoAcceptDetailState();
 }
 
 List<dynamic> data = [];
@@ -30,26 +32,7 @@ String totalPrice = "";
 String resvStatus = "";
 var reservation_id = "";
 
-class _ContinueDetailState extends State<ContinueDetail> {
-  Future<void> _resvConfirm() async {
-    try {
-      var response = await http.post(Uri.parse(TravelApi.resvUpdate), body: {
-        'reservation_id': reservationId,
-        'travel_reservation_status': "1",
-        'hotel_reservation_status': "0",
-      });
-
-      if (response.statusCode == 200) {
-        if (mounted) {
-          Navigator.pop(context, true); // true 값을 반환하며 현재 페이지 닫기
-        }
-        setState(() {
-          // _fetchUserDataFromApi();
-        });
-      }
-    } catch (e) {}
-  }
-
+class _NoAcceptDetailState extends State<NoAcceptDetail> {
   Future<void> _Confirm() async {
     return showDialog<void>(
       //다이얼로그 위젯 소환
@@ -58,11 +41,10 @@ class _ContinueDetailState extends State<ContinueDetail> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text(
-            '예약확정을 진행하시겠습니까?',
+            '예약내용을 변경하시겠습니까?',
             style: TextStyle(
                 fontFamily: 'Pretendard', fontWeight: FontWeight.w700),
           ),
-          content: const SingleChildScrollView(),
           actions: [
             TextButton(
               child: const Text(
@@ -70,9 +52,32 @@ class _ContinueDetailState extends State<ContinueDetail> {
                 style: TextStyle(
                     fontFamily: 'Pretendard', fontWeight: FontWeight.w700),
               ),
-              onPressed: () {
+              onPressed: () async {
+                DateTime startDate = DateTime.parse(checkInDate);
+                DateTime endDate = DateTime.parse(checkOutDate);
                 Navigator.of(context).pop();
-                _resvConfirm();
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => UpdatePage(
+                      reservationID: reservationId,
+                      name: inquiryName,
+                      phone: inquiryTel,
+                      startDate: startDate,
+                      endDate: endDate,
+                      roomcount: roomCount,
+                      guest: guestCount,
+                      night: nightCount,
+                      price: totalPrice,
+                    ),
+                  ),
+                );
+
+                if (result != null) {
+                  print(result);
+                  _resvRefresh(result.toString());
+                  _resvRefresh1(result.toString());
+                }
               },
             ),
             TextButton(
@@ -91,6 +96,35 @@ class _ContinueDetailState extends State<ContinueDetail> {
         );
       },
     );
+  }
+
+  Future<void> _resvRefresh(String id) async {
+    try {
+      var response = await http.post(Uri.parse(HotelApi.resvConfirm), body: {
+        'reservation_id': id.toString().trim(),
+        'travel_reservation_status': "1",
+        'hotel_reservation_status': "0",
+      });
+
+      if (response.statusCode == 200) {
+        print(response.body);
+        Navigator.pop(context, true);
+      } else {}
+    } catch (e) {}
+  }
+
+  Future<void> _resvRefresh1(String id) async {
+    try {
+      var response = await http.post(Uri.parse(TravelApi.resvUpdate), body: {
+        'reservation_id': id.toString().trim(),
+        'travel_reservation_status': "1",
+        'hotel_reservation_status': "0",
+      });
+
+      if (response.statusCode == 200) {
+        print(response.body);
+      } else {}
+    } catch (e) {}
   }
 
   @override
@@ -114,27 +148,52 @@ class _ContinueDetailState extends State<ContinueDetail> {
 
   @override
   Widget build(BuildContext context) {
-    DateTime startDate = DateTime.parse(checkInDate);
-    DateTime endDate = DateTime.parse(checkOutDate);
     return Scaffold(
       appBar: AppBar(
         title: const Text('상세정보'),
         elevation: 1.0,
         shadowColor: Colors.black,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
       ),
       body: Center(
         child: SingleChildScrollView(
-          child: Container(
-            width: 300,
-            padding: const EdgeInsets.all(30),
+          child: SizedBox(
+            width: 200,
             child: Column(
               children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      '호텔 ID: ',
+                      style: TextStyle(
+                          fontFamily: 'Pretendard',
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700),
+                    ),
+                    Text(
+                      hotelID,
+                      style: const TextStyle(
+                          fontFamily: 'Pretendard', fontSize: 15),
+                    )
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      '여행사 ID: ',
+                      style: TextStyle(
+                          fontFamily: 'Pretendard',
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700),
+                    ),
+                    Text(
+                      travelID,
+                      style: const TextStyle(
+                          fontFamily: 'Pretendard', fontSize: 15),
+                    )
+                  ],
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -288,14 +347,11 @@ class _ContinueDetailState extends State<ContinueDetail> {
                     )
                   ],
                 ),
-                const SizedBox(
-                  height: 10,
-                ),
                 SizedBox(
                   width: 250,
                   child: OutlinedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
+                    onPressed: () async {
+                      _Confirm();
                     },
                     style: OutlinedButton.styleFrom(
                       backgroundColor: Colors.white,
@@ -310,7 +366,7 @@ class _ContinueDetailState extends State<ContinueDetail> {
                       ),
                     ),
                     child: const Text(
-                      '뒤로가기',
+                      '변경하기',
                       style: TextStyle(
                           fontFamily: 'Pretendard',
                           fontSize: 18,

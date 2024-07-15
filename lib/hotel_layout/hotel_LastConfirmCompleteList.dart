@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_application_hotel/api/travel_api.dart';
-import 'package:flutter_application_hotel/travel_layout/travel_ReservationDetail.dart';
+import 'package:flutter_application_hotel/hotel_layout/hotel_ReservationCompleteDetail.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_application_hotel/api/admin_api.dart';
 
@@ -116,7 +116,7 @@ class _ReservationConfirmCompleteListState
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ReservationDetail(ReserverInfo: userData),
+        builder: (context) => ReservationCompleteDetail(ReserverInfo: userData),
       ),
     );
   }

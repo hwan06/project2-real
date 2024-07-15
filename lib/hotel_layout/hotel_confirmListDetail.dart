@@ -34,7 +34,7 @@ class confirmListDetailState extends State<confirmListDetail> {
   Future<void> _resvConfirm() async {
     try {
       var response = await http.post(Uri.parse(HotelApi.resvConfirm), body: {
-        'reservation_id': reservation_id,
+        'reservation_id': reservationId,
         'hotel_reservation_status': "2",
         'travel_reservation_status': "2",
       });
@@ -49,7 +49,7 @@ class confirmListDetailState extends State<confirmListDetail> {
     } catch (e) {}
   }
 
-  Future<void> _Confirm() async {
+  Future<void> showAlert() async {
     return showDialog<void>(
       //다이얼로그 위젯 소환
       context: context,
@@ -57,7 +57,7 @@ class confirmListDetailState extends State<confirmListDetail> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text(
-            '최종컨펌을 진행하시겠습니까?',
+            '컨펌을 수락하시겠습니까?',
             style: TextStyle(
                 fontFamily: 'Pretendard', fontWeight: FontWeight.w700),
           ),
@@ -69,8 +69,8 @@ class confirmListDetailState extends State<confirmListDetail> {
                     fontFamily: 'Pretendard', fontWeight: FontWeight.w700),
               ),
               onPressed: () {
-                Navigator.of(context).pop();
                 _resvConfirm();
+                Navigator.of(context).pop();
               },
             ),
             TextButton(
@@ -300,11 +300,7 @@ class confirmListDetailState extends State<confirmListDetail> {
                   width: 250,
                   child: OutlinedButton(
                     onPressed: () {
-                      setState(() {
-                        reservation_id =
-                            widget.ReserverInfo['reservation_id'].toString();
-                      });
-                      _Confirm();
+                      showAlert();
                     },
                     style: OutlinedButton.styleFrom(
                       backgroundColor: Colors.white,
@@ -314,19 +310,49 @@ class confirmListDetailState extends State<confirmListDetail> {
                         ),
                       ),
                       side: const BorderSide(
-                        color: Colors.greenAccent,
                         width: 2,
+                        color: Colors.green,
                       ),
                     ),
                     child: const Text(
-                      '최종컨펌 완료',
+                      '컨펌 수락',
                       style: TextStyle(
                           fontFamily: 'Pretendard',
                           fontSize: 18,
-                          color: Colors.greenAccent),
+                          color: Colors.green),
                     ),
                   ),
-                )
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                SizedBox(
+                  width: 250,
+                  child: OutlinedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(5),
+                        ),
+                      ),
+                      side: const BorderSide(
+                        width: 2,
+                        color: Colors.amber,
+                      ),
+                    ),
+                    child: const Text(
+                      '뒤로가기',
+                      style: TextStyle(
+                          fontFamily: 'Pretendard',
+                          fontSize: 18,
+                          color: Colors.amber),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),

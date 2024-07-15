@@ -15,6 +15,24 @@ class Reservation extends StatefulWidget {
   State<Reservation> createState() => _ReservationState();
 }
 
+class reservation {
+  late String travel_reservation_status;
+  late String hotel_price;
+  late String night_count;
+  late String room_count;
+  late String check_in_date;
+  late String check_out_date;
+
+  reservation(
+    this.travel_reservation_status,
+    this.hotel_price,
+    this.night_count,
+    this.room_count,
+    this.check_in_date,
+    this.check_out_date,
+  );
+}
+
 late String username;
 late String userTel;
 late String travelID;
@@ -33,6 +51,7 @@ class _ReservationState extends State<Reservation> {
   var hotelname2;
   var _nightCount = 0;
   bool resvConfirm = false;
+  Map<String, dynamic> ls = {};
 
   void updatePrice() {
     int roomCount = int.tryParse(roomCountController.text) ?? 0;
@@ -137,36 +156,35 @@ class _ReservationState extends State<Reservation> {
 
   Future<void> _neverSatisfied() async {
     return showDialog<void>(
-      //다이얼로그 위젯 소환
-      context: context,
-      barrierDismissible: false, // 다이얼로그 이외의 바탕 눌러도 안꺼지도록 설정
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('예약하시겠습니까?'),
-          content: const SingleChildScrollView(),
-          actions: [
-            TextButton(
-              child: const Text('확인'),
-              onPressed: () {
-                Navigator.of(context).pop();
+        //다이얼로그 위젯 소환
+        context: context,
+        barrierDismissible: false, // 다이얼로그 이외의 바탕 눌러도 안꺼지도록 설정
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('예약하시겠습니까?'),
+            content: const SingleChildScrollView(),
+            actions: [
+              TextButton(
+                child: const Text('확인'),
+                onPressed: () {
+                  Navigator.of(context).pop();
 
-                setState(() {
-                  hotelname2 = widget.hotelList[0]['hotel_name'];
-                });
+                  setState(() {
+                    hotelname2 = widget.hotelList[0]['hotel_name'];
+                  });
 
-                hotelReservation();
-              },
-            ),
-            TextButton(
-              child: const Text('취소'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
+                  hotelReservation();
+                },
+              ),
+              TextButton(
+                child: const Text('취소'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        });
   }
 
   @override

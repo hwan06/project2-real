@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_application_hotel/api/travel_api.dart';
 
 class CompleteListDetail extends StatefulWidget {
   final Map<String, dynamic> ReserverInfo;

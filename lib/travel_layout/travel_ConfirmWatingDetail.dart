@@ -1,16 +1,18 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_application_hotel/api/travel_api.dart';
 
-class confirmListDetail extends StatefulWidget {
+class ConfirmWatingDetail extends StatefulWidget {
   final Map<String, dynamic> ReserverInfo;
-  const confirmListDetail({
+  const ConfirmWatingDetail({
     super.key,
     required this.ReserverInfo,
   });
 
   @override
-  State<confirmListDetail> createState() => _confirmListDetailState();
+  State<ConfirmWatingDetail> createState() => _ConfirmWatingDetailState();
 }
 
 List<dynamic> data = [];
@@ -28,67 +30,9 @@ String checkOutDate = "";
 String totalPrice = "";
 String resvStatus = "";
 var reservation_id = "";
+dynamic date;
 
-class _confirmListDetailState extends State<confirmListDetail> {
-  Future<void> _resvConfirm() async {
-    try {
-      var response = await http.post(Uri.parse(TravelApi.resvUpdate), body: {
-        'reservation_id': reservation_id,
-        'travel_reservation_status': "2",
-        'hotel_reservation_status': "1"
-      });
-
-      if (response.statusCode == 200) {
-        Navigator.pop(context, true);
-        setState(() {
-          // _fetchUserDataFromApi();
-        });
-      }
-    } catch (e) {}
-  }
-
-  Future<void> _Confirm() async {
-    return showDialog<void>(
-      //다이얼로그 위젯 소환
-      context: context,
-      barrierDismissible: false, // 다이얼로그 이외의 바탕 눌러도 안꺼지도록 설정
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text(
-            '결제하시겠습니까?',
-            style: TextStyle(
-                fontFamily: 'Pretendard', fontWeight: FontWeight.w700),
-          ),
-          actions: [
-            TextButton(
-              child: const Text(
-                '확인',
-                style: TextStyle(
-                    fontFamily: 'Pretendard', fontWeight: FontWeight.w700),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-                _resvConfirm();
-              },
-            ),
-            TextButton(
-              child: const Text(
-                '취소',
-                style: TextStyle(
-                    fontFamily: 'Pretendard',
-                    fontWeight: FontWeight.w700,
-                    color: Colors.red),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
+class _ConfirmWatingDetailState extends State<ConfirmWatingDetail> {
   @override
   void initState() {
     // TODO: implement initState
@@ -106,57 +50,93 @@ class _confirmListDetailState extends State<confirmListDetail> {
     checkOutDate = widget.ReserverInfo['check_out_date'];
     totalPrice = widget.ReserverInfo['hotel_price'].toString();
     resvStatus = widget.ReserverInfo['travel_reservation_status'];
-    print(widget.ReserverInfo['agency_id']);
+  }
+
+  Future<void> _resvConfirm() async {
+    try {
+      var response = await http.post(Uri.parse(TravelApi.resvUpdate), body: {
+        'reservation_id': reservationId,
+        'travel_reservation_status': "2",
+        'hotel_reservation_status': "1",
+      });
+
+      if (response.statusCode == 200) {
+        print('200');
+        if (mounted) {
+          Navigator.pop(context, true); // 현재 페이지 닫기
+        }
+        setState(() {
+          // _fetchUserDataFromApi();
+        });
+      }
+    } catch (e) {}
+  }
+
+  void showAlert() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text(
+            "컨펌요청을 하시겠습니까?",
+            style: TextStyle(
+              fontFamily: 'Pretendard',
+              fontSize: 28,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                _resvConfirm();
+                Navigator.pop(context);
+              },
+              child: const Text(
+                "확인",
+                style: TextStyle(fontFamily: 'Pretendard', fontSize: 12),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text(
+                "취소",
+                style: TextStyle(
+                    color: Colors.black,
+                    fontFamily: 'Pretendard',
+                    fontSize: 12),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    DateTime startDate = DateTime.parse(checkInDate);
+    DateTime endDate = DateTime.parse(checkOutDate);
     return Scaffold(
       appBar: AppBar(
         title: const Text('상세정보'),
         elevation: 1.0,
         shadowColor: Colors.black,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
       ),
       body: Center(
         child: SingleChildScrollView(
-          child: SizedBox(
-            width: 200,
+          child: Container(
+            width: 300,
+            padding: const EdgeInsets.all(30),
             child: Column(
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      '호텔 ID: ',
-                      style: TextStyle(
-                          fontFamily: 'Pretendard',
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700),
-                    ),
-                    Text(
-                      hotelID,
-                      style: const TextStyle(
-                          fontFamily: 'Pretendard', fontSize: 15),
-                    )
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      '여행사 ID: ',
-                      style: TextStyle(
-                          fontFamily: 'Pretendard',
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700),
-                    ),
-                    Text(
-                      travelID,
-                      style: const TextStyle(
-                          fontFamily: 'Pretendard', fontSize: 15),
-                    )
-                  ],
-                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -310,33 +290,66 @@ class _confirmListDetailState extends State<confirmListDetail> {
                     )
                   ],
                 ),
+                const SizedBox(
+                  height: 10,
+                ),
                 SizedBox(
                   width: 250,
                   child: OutlinedButton(
                     onPressed: () {
-                      setState(() {
-                        reservation_id =
-                            widget.ReserverInfo['reservation_id'].toString();
-                      });
-                      _Confirm();
+                      showAlert();
                     },
                     style: OutlinedButton.styleFrom(
-                      backgroundColor: Colors.greenAccent,
+                      backgroundColor: Colors.white,
                       shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(
                           Radius.circular(5),
                         ),
                       ),
+                      side: const BorderSide(
+                        width: 2,
+                        color: Colors.green,
+                      ),
                     ),
                     child: const Text(
-                      '결제하기',
+                      '컨펌요청',
                       style: TextStyle(
                           fontFamily: 'Pretendard',
                           fontSize: 18,
-                          color: Colors.white),
+                          color: Colors.green),
                     ),
                   ),
-                )
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                SizedBox(
+                  width: 250,
+                  child: OutlinedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(5),
+                        ),
+                      ),
+                      side: const BorderSide(
+                        width: 2,
+                        color: Colors.amber,
+                      ),
+                    ),
+                    child: const Text(
+                      '뒤로가기',
+                      style: TextStyle(
+                          fontFamily: 'Pretendard',
+                          fontSize: 18,
+                          color: Colors.amber),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),

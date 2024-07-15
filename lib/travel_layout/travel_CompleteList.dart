@@ -89,51 +89,6 @@ class _CompleteListState extends State<CompleteList> {
     }
   }
 
-  Future<void> resvCancel() async {
-    try {
-      var response = await http.post(Uri.parse(TravelApi.resvUpdate), body: {
-        'reservation_id': reservation_id,
-        'hotel_reservation_status': "3"
-      });
-
-      if (response.statusCode == 200) {
-        _fetchUserDataFromApi();
-      }
-    } catch (e) {
-      print("Error canceling reservation: $e");
-    }
-  }
-
-  Future<void> _cancleConfirm() async {
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('예약을 취소하시겠습니까?'),
-          actions: [
-            TextButton(
-              child: const Text(
-                '확인',
-                style: TextStyle(fontFamily: 'Pretendard', color: Colors.red),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-                resvCancel();
-              },
-            ),
-            TextButton(
-              child: const Text('닫기'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   void viewDetail(Map<String, dynamic> userData) {
     Navigator.push(
       context,
@@ -148,7 +103,7 @@ class _CompleteListState extends State<CompleteList> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          '예약완료 리스트',
+          '컨펌완료 리스트',
           style: TextStyle(
             fontFamily: 'Pretendard',
             fontSize: 25,

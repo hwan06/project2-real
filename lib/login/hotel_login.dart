@@ -2,12 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_application_hotel/hotel_layout/hotel_PwSearch.dart';
-import 'package:flutter_application_hotel/hotel_layout/hotel_index.dart';
-import 'package:flutter_application_hotel/login/hotel_signup.dart';
+import 'package:flutter_application_hotel/hotel_layout/hotel_Index.dart';
+import 'package:flutter_application_hotel/login/hotel_HotelUserSignUp.dart';
 import 'package:flutter_application_hotel/travel_layout/TravelInfo.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_application_hotel/api/hotel_api.dart';
-import 'package:flutter_application_hotel/hotel_layout/hotel_confirm.dart';
 import 'package:provider/provider.dart';
 
 class Login extends StatefulWidget {
@@ -27,6 +26,7 @@ class LoginState extends State<Login> {
   var name;
   var email;
   var tel;
+  var hotel_name;
   String? validatePassword(String value) {
     String pattern =
         r'^(?=.*[a-zA-z])(?=.*[0-9])(?=.*[$`~!@$!%*#^?&\\(\\)\-_=+]).{8,15}$';
@@ -53,7 +53,6 @@ class LoginState extends State<Login> {
       if (!mounted) return;
 
       if (res.statusCode == 200) {
-        print(res.statusCode);
         var resLogin = jsonDecode(res.body);
         print(resLogin);
         if (resLogin['success'] == true && passwordController.text.isNotEmpty) {
@@ -66,11 +65,14 @@ class LoginState extends State<Login> {
             email = resLogin['hotelData']['user_email'];
             name = resLogin['hotelData']['user_name'];
             tel = resLogin['hotelData']['user_tel'];
+            hotel_name = resLogin['hotelData']['hotel_name'];
           });
 
           complete();
+        } else if (resLogin['error'] == "Account not approved") {
+          neverSatisfied("승인 대기중인 계정입니다.");
         } else {
-          neverSatisfied();
+          neverSatisfied("옳지 않은 정보입니다.");
         }
       }
     } catch (e) {
@@ -90,13 +92,19 @@ class LoginState extends State<Login> {
                 )));
   }
 
-  Future<void> neverSatisfied() async {
+  Future<void> neverSatisfied(String title) async {
     return showDialog<void>(
       //다이얼로그 위젯 소환
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('로그인에 실패하였습니다.'),
+          title: Text(
+            title,
+            style: const TextStyle(
+                fontFamily: 'Pretendard',
+                fontSize: 18,
+                fontWeight: FontWeight.w500),
+          ),
           content: const SingleChildScrollView(),
           actions: [
             TextButton(
@@ -114,221 +122,223 @@ class LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          leadingWidth: 120,
-          title: const Text(
-            '로그인',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          centerTitle: true,
-          leading: Padding(
-            padding: const EdgeInsets.all(2.0),
-            child: TextButton.icon(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              icon: const Icon(
-                Icons.arrow_back,
-                color: Colors.black54,
-              ),
-              label: const Text(
-                '뒤로가기',
-                style: TextStyle(color: Colors.black54),
-              ),
-              style: ButtonStyle(
-                overlayColor: WidgetStateProperty.resolveWith<Color?>(
-                    (Set<WidgetState> states) {
-                  if (states.contains(WidgetState.hovered)) {
-                    return Colors.grey.withOpacity(0.04);
-                  }
-                  if (states.contains(WidgetState.pressed)) {
-                    return Colors.grey.withOpacity(0.12);
-                  }
-                  return Colors.black;
-                }),
-              ),
+      appBar: AppBar(
+        leadingWidth: 120,
+        title: const Text(
+          '로그인',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+        leading: Padding(
+          padding: const EdgeInsets.all(2.0),
+          child: TextButton.icon(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: const Icon(
+              Icons.arrow_back,
+              color: Colors.black54,
             ),
-          ),
-          shape: const Border(
-            bottom: BorderSide(
-              color: Colors.grey,
-              width: 1,
+            label: const Text(
+              '뒤로가기',
+              style: TextStyle(color: Colors.black54),
+            ),
+            style: ButtonStyle(
+              overlayColor: WidgetStateProperty.resolveWith<Color?>(
+                  (Set<WidgetState> states) {
+                if (states.contains(WidgetState.hovered)) {
+                  return Colors.grey.withOpacity(0.04);
+                }
+                if (states.contains(WidgetState.pressed)) {
+                  return Colors.grey.withOpacity(0.12);
+                }
+                return Colors.black;
+              }),
             ),
           ),
         ),
-        body: Center(
-          child: Form(
-              key: formKey,
-              child: Container(
-                padding: const EdgeInsets.only(top: 40.0),
-                child: Column(
+        shape: const Border(
+          bottom: BorderSide(
+            color: Colors.grey,
+            width: 1,
+          ),
+        ),
+      ),
+      body: Center(
+        child: Form(
+          key: formKey,
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 300),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text('호텔측 로그인'),
-                      ],
-                    ),
-                    const SizedBox(
-                        width: 100,
-                        child: Divider(color: Colors.black, thickness: 2.0)),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 20.0),
-                      child: SizedBox(
-                        width: 350,
-                        child: TextFormField(
-                          onChanged: (value) => id = value,
-                          keyboardType: TextInputType.emailAddress,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "이메일을 입력하세요.";
-                            } else if (!RegExp(
-                                    r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                                .hasMatch(value)) {
-                              return "올바른 이메일 주소를 입력하세요.";
-                            }
-                            return null;
-                          },
-                          controller: emailController,
-                          decoration: const InputDecoration(
-                              prefixIcon: Icon(Icons.perm_identity),
-                              hintText: '이메일을 입력하세요.'),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    SizedBox(
-                      width: 350,
-                      child: TextFormField(
-                        obscureText: true,
-                        keyboardType: TextInputType.visiblePassword,
-                        onChanged: (value) => pw = value,
-                        // validator: (value) => validatePassword(value!),
-                        controller: passwordController,
-                        decoration: const InputDecoration(
-                            prefixIcon: Icon(Icons.lock),
-                            hintText: '비밀번호를 입력하세요.'),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 30.0, bottom: 30.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          const confirm_hotel()));
-                            },
-                            child: const MouseRegion(
-                              cursor: SystemMouseCursors.click,
-                              child: Row(
-                                children: [
-                                  Text(
-                                    '회원가입',
-                                    style: TextStyle(
-                                      fontSize: 14.0,
-                                      color: Colors.black54,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          const Padding(
-                            padding: EdgeInsets.only(left: 20.0, right: 20.0),
-                            child: Text(
-                              ' | ',
-                              style: TextStyle(color: Colors.black54),
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          const HotelSignUp()));
-                            },
-                            child: const MouseRegion(
-                              cursor: SystemMouseCursors.click,
-                              child: Row(
-                                children: [
-                                  Text(
-                                    '아이디 찾기',
-                                    style: TextStyle(
-                                      fontSize: 14.0,
-                                      color: Colors.black54,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          const Padding(
-                            padding: EdgeInsets.only(left: 20.0, right: 20.0),
-                            child: Text(
-                              ' | ',
-                              style: TextStyle(color: Colors.black54),
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          const hotel_pw_search()));
-                            },
-                            child: const MouseRegion(
-                              cursor: SystemMouseCursors.click,
-                              child: Row(
-                                children: [
-                                  Text(
-                                    '비밀번호 찾기',
-                                    style: TextStyle(
-                                      fontSize: 14.0,
-                                      color: Colors.black54,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      width: 350,
-                      height: 50,
-                      child: TextButton(
-                        onPressed: () {
-                          userLogin();
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blueAccent,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: const Text(
-                          '로그인',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 22.0,
-                              fontWeight: FontWeight.w700),
-                        ),
-                      ),
-                    )
+                    Text('호텔측 로그인'),
                   ],
                 ),
-              )),
-        ));
+                const SizedBox(
+                    width: 100,
+                    child: Divider(color: Colors.black, thickness: 2.0)),
+                Padding(
+                  padding: const EdgeInsets.only(top: 20.0),
+                  child: SizedBox(
+                    width: 350,
+                    child: TextFormField(
+                      onChanged: (value) => id = value,
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "이메일을 입력하세요.";
+                        } else if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                            .hasMatch(value)) {
+                          return "올바른 이메일 주소를 입력하세요.";
+                        }
+                        return null;
+                      },
+                      controller: emailController,
+                      decoration: const InputDecoration(
+                          prefixIcon: Icon(Icons.perm_identity),
+                          hintText: '이메일을 입력하세요.'),
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                SizedBox(
+                  width: 350,
+                  child: TextFormField(
+                    obscureText: true,
+                    onFieldSubmitted: (_) {
+                      userLogin();
+                    },
+                    keyboardType: TextInputType.visiblePassword,
+                    onChanged: (value) => pw = value,
+                    // validator: (value) => validatePassword(value!),
+                    controller: passwordController,
+                    decoration: const InputDecoration(
+                        prefixIcon: Icon(Icons.lock), hintText: '비밀번호를 입력하세요.'),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 30.0, bottom: 30.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const HotelSign()));
+                        },
+                        child: const MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: Row(
+                            children: [
+                              Text(
+                                '회원가입',
+                                style: TextStyle(
+                                  fontSize: 14.0,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const Padding(
+                        padding: EdgeInsets.only(left: 20.0, right: 20.0),
+                        child: Text(
+                          ' | ',
+                          style: TextStyle(color: Colors.black54),
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const HotelSign()));
+                        },
+                        child: const MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: Row(
+                            children: [
+                              Text(
+                                '아이디 찾기',
+                                style: TextStyle(
+                                  fontSize: 14.0,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const Padding(
+                        padding: EdgeInsets.only(left: 20.0, right: 20.0),
+                        child: Text(
+                          ' | ',
+                          style: TextStyle(color: Colors.black54),
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      const hotel_pw_search()));
+                        },
+                        child: const MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: Row(
+                            children: [
+                              Text(
+                                '비밀번호 찾기',
+                                style: TextStyle(
+                                  fontSize: 14.0,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  width: 350,
+                  height: 50,
+                  child: TextButton(
+                    onPressed: () {
+                      userLogin();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blueAccent,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      '로그인',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 22.0,
+                          fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

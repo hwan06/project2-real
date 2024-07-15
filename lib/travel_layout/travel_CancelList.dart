@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_application_hotel/api/travel_api.dart';
-import 'package:flutter_application_hotel/travel_layout/travel_ReservationDetail.dart';
 import 'package:flutter_application_hotel/travel_layout/TravelInfo.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
@@ -105,15 +104,6 @@ class _CancelListState extends State<CancelList> {
       });
       // 에러 처리
     }
-  }
-
-  viewDetail(Map<String, dynamic> userData) {
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => ReservationDetail(
-                  ReserverInfo: userData,
-                )));
   }
 
   @override

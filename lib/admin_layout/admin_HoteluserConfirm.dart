@@ -14,6 +14,8 @@ class HoteluserConfirm extends StatefulWidget {
 class _HoteluserConfirmState extends State<HoteluserConfirm> {
   List<Map<String, dynamic>> _userData = []; // 데이터베이스에서 가져온 사용자 데이터
   var acceptEmail = "";
+  bool isLoading = false;
+  bool hasData = false;
 
   @override
   void initState() {
@@ -23,6 +25,9 @@ class _HoteluserConfirmState extends State<HoteluserConfirm> {
   }
 
   Future<void> _fetchUserDataFromApi() async {
+    setState(() {
+      isLoading = true;
+    });
     try {
       var response = await http.post(Uri.parse(AdminApi.hotelconfirm));
 
@@ -34,26 +39,20 @@ class _HoteluserConfirmState extends State<HoteluserConfirm> {
           List<dynamic>? userDataList = responseBody['hotel_list'];
 
           if (userDataList != null) {
-            _userData = userDataList.map((userData) {
-              return {
-                'email': userData['user_email'],
-                'phone': userData['user_tel'],
-                'name': userData['user_name'],
-                'hotel_id': userData['hotel_id']
-              };
-            }).toList();
-
             setState(() {
-              // 화면 업데이트
+              _userData = userDataList.map((userData) {
+                return {
+                  'email': userData['user_email'],
+                  'phone': userData['user_tel'],
+                  'name': userData['user_name'],
+                  'hotel_name': userData['hotel_name']
+                };
+              }).toList();
+              isLoading = false;
+              hasData = userDataList.isEmpty;
             });
-          } else {
-            throw "User data is null"; // 데이터가 null일 경우 처리
           }
-        } else {
-          throw "Failed to fetch user data"; // 요청이 실패하면 예외 발생
         }
-      } else {
-        throw "Failed to load user data: ${response.statusCode}";
       }
     } catch (e) {
       print("Error fetching user data: $e");
@@ -153,120 +152,160 @@ class _HoteluserConfirmState extends State<HoteluserConfirm> {
 
   @override
   Widget build(BuildContext context) {
-    return _userData.isEmpty
-        ? const Center(
-            child: Text(
-            '리스트가 비어있습니다.',
-            style: TextStyle(
-              color: Colors.red,
-              fontFamily: 'Pretendard',
-              fontSize: 22,
-            ),
-          )) // 데이터가 로드될 때까지 로딩 스피너 표시
-        : Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Column(
-              children: [
-                SingleChildScrollView(
-                  child: Table(
-                    border: TableBorder.all(),
-                    columnWidths: const {
-                      0: FlexColumnWidth(2),
-                      1: FlexColumnWidth(2),
-                      2: FlexColumnWidth(3),
-                      3: FlexColumnWidth(2),
-                    },
-                    defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          "호텔 가입승인 페이지",
+          style:
+              TextStyle(fontFamily: 'Pretendard', fontWeight: FontWeight.w500),
+        ),
+        automaticallyImplyLeading: false,
+        elevation: 1.0,
+        shadowColor: Colors.black,
+      ),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : hasData
+              ? const Center(
+                  child: Text(
+                  '리스트가 비어있습니다.',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontFamily: 'Pretendard',
+                    fontSize: 22,
+                  ),
+                )) // 데이터가 로드될 때까지 로딩 스피너 표시
+              : Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Column(
                     children: [
-                      TableRow(children: [
-                        Container(
-                            color: Colors.lightBlue,
-                            padding: const EdgeInsets.all(8.0),
-                            child: const Text(
-                              '이름',
-                              style:
-                                  TextStyle(fontSize: 18, color: Colors.white),
-                              textAlign: TextAlign.center,
-                            )),
-                        Container(
-                            color: Colors.lightBlue,
-                            padding: const EdgeInsets.all(8.0),
-                            child: const Text(
-                              '전화번호',
-                              style:
-                                  TextStyle(fontSize: 18, color: Colors.white),
-                              textAlign: TextAlign.center,
-                            )),
-                        Container(
-                            color: Colors.lightBlue,
-                            padding: const EdgeInsets.all(8.0),
-                            child: const Text(
-                              '이메일',
-                              style:
-                                  TextStyle(fontSize: 18, color: Colors.white),
-                              textAlign: TextAlign.center,
-                            )),
-                        Container(
-                            color: Colors.lightBlue,
-                            padding: const EdgeInsets.all(8.0),
-                            child: const Text(
-                              '승인 / 거절',
-                              style:
-                                  TextStyle(fontSize: 18, color: Colors.white),
-                              textAlign: TextAlign.center,
-                            )),
-                      ]),
-                      ..._userData.map((user) => TableRow(children: [
-                            Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(user['name'])),
-                            Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(user['phone'])),
-                            Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(user['email'])),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                TextButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      acceptEmail = user['email'];
-                                    });
-                                    _accept();
-                                  },
+                      SingleChildScrollView(
+                        child: Table(
+                          border: TableBorder.all(),
+                          columnWidths: const {
+                            0: FlexColumnWidth(1),
+                            1: FlexColumnWidth(1),
+                            2: FlexColumnWidth(1),
+                            3: FlexColumnWidth(1),
+                            4: FlexColumnWidth(1),
+                          },
+                          defaultVerticalAlignment:
+                              TableCellVerticalAlignment.middle,
+                          children: [
+                            TableRow(children: [
+                              Container(
+                                  color: Colors.lightBlue,
+                                  padding: const EdgeInsets.all(8.0),
                                   child: const Text(
-                                    '승인',
+                                    '이름',
                                     style: TextStyle(
-                                        color: Colors.green,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: 6,
-                                ),
-                                TextButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        acceptEmail = user['email'];
-                                      });
-                                      _cancel();
-                                    },
-                                    child: const Text(
-                                      '거절',
-                                      style: TextStyle(
-                                          color: Colors.red,
-                                          fontWeight: FontWeight.bold),
-                                    ))
-                              ],
-                            )
-                          ])),
+                                        fontSize: 18, color: Colors.white),
+                                    textAlign: TextAlign.center,
+                                  )),
+                              Container(
+                                  color: Colors.lightBlue,
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: const Text(
+                                    '전화번호',
+                                    style: TextStyle(
+                                        fontSize: 18, color: Colors.white),
+                                    textAlign: TextAlign.center,
+                                  )),
+                              Container(
+                                  color: Colors.lightBlue,
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: const Text(
+                                    '이메일',
+                                    style: TextStyle(
+                                        fontSize: 18, color: Colors.white),
+                                    textAlign: TextAlign.center,
+                                  )),
+                              Container(
+                                  color: Colors.lightBlue,
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: const Text(
+                                    '호텔명',
+                                    style: TextStyle(
+                                        fontSize: 18, color: Colors.white),
+                                    textAlign: TextAlign.center,
+                                  )),
+                              Container(
+                                  color: Colors.lightBlue,
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: const Text(
+                                    '승인 / 거절',
+                                    style: TextStyle(
+                                        fontSize: 18, color: Colors.white),
+                                    textAlign: TextAlign.center,
+                                  )),
+                            ]),
+                            ..._userData.map((user) => TableRow(children: [
+                                  Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text(
+                                        user['name'],
+                                        textAlign: TextAlign.center,
+                                      )),
+                                  Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text(
+                                        user['phone'],
+                                        textAlign: TextAlign.center,
+                                      )),
+                                  Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text(
+                                        user['email'],
+                                        textAlign: TextAlign.center,
+                                      )),
+                                  Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text(
+                                        user['hotel_name'],
+                                        textAlign: TextAlign.center,
+                                      )),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      TextButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            acceptEmail = user['email'];
+                                          });
+                                          _accept();
+                                        },
+                                        child: const Text(
+                                          '승인',
+                                          style: TextStyle(
+                                              color: Colors.green,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        width: 6,
+                                      ),
+                                      TextButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              acceptEmail = user['email'];
+                                            });
+                                            _cancel();
+                                          },
+                                          child: const Text(
+                                            '거절',
+                                            style: TextStyle(
+                                                color: Colors.red,
+                                                fontWeight: FontWeight.bold),
+                                          ))
+                                    ],
+                                  )
+                                ])),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
-              ],
-            ),
-          );
+    );
   }
 }

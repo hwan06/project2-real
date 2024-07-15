@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_hotel/api/hotel_api.dart';
 import 'package:flutter_application_hotel/api/travel_api.dart';
-import 'package:flutter_application_hotel/hotel_layout/hotel_confirmListDetail.dart';
+import 'package:flutter_application_hotel/hotel_layout/hotel_ConfirmListDetail.dart';
 import 'package:flutter_application_hotel/travel_layout/TravelInfo.dart';
 
 import 'package:http/http.dart' as http;
@@ -165,7 +165,7 @@ class _ReservationConfirmListState extends State<ReservationConfirmList> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          '지불완료 리스트',
+          '컨펌대기 리스트',
           style: TextStyle(
             fontFamily: 'Pretendard',
             fontSize: 25,

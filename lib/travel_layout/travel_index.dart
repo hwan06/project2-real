@@ -1,15 +1,18 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_hotel/index/index.dart';
+import 'package:flutter_application_hotel/travel_layout/travel_BottomNavi.dart';
 import 'package:flutter_application_hotel/travel_layout/travel_CancelList.dart';
 import 'package:flutter_application_hotel/travel_layout/travel_CompleteList.dart';
-import 'package:flutter_application_hotel/travel_layout/travel_ReservationContinue.dart';
+import 'package:flutter_application_hotel/travel_layout/travel_ConfirmWatingList.dart';
+import 'package:flutter_application_hotel/travel_layout/travel_Main.dart';
+import 'package:flutter_application_hotel/travel_layout/travel_NoAcceptDetail.dart';
+import 'package:flutter_application_hotel/travel_layout/travel_ReservatingList.dart';
 import 'package:flutter_application_hotel/travel_layout/travel_inquiryAfterList.dart';
 import 'package:flutter_application_hotel/travel_layout/travel_inquiryBeforeList.dart';
-import 'travel_confirmList.dart';
+import 'travel_NoAcceptList.dart';
 import 'travel_myPage.dart';
 import 'travel_HotelSearch.dart';
-import 'package:side_navigation/side_navigation.dart';
-import 'package:flutter_application_hotel/travel_layout/travel_HotelReservationList.dart';
 
 class travel_index extends StatefulWidget {
   final String name;
@@ -41,15 +44,16 @@ class _MainViewState extends State<travel_index> {
   void initState() {
     super.initState();
     views = [
-      const Center(),
+      const MainPage(),
       const searchBar(),
-      const ReservationList(),
-      const ReservationContinueList(),
-      const ReservationConfirmList(),
-      const CancelList(),
+      const ReservatingList(),
+      const ConfirmWatingList(),
       const CompleteList(),
+      const ReservationNoAcceptList(),
+      const CancelList(),
       const TravelInquiryBeforeList(),
       const TravelInquiryAfterList(),
+      const TStatisticBottomNavi(),
       travel_MyPage(email: email, name: name, tel: tel, pw: pw)
     ];
   }
@@ -69,20 +73,22 @@ class _MainViewState extends State<travel_index> {
       case 1:
         return const searchBar();
       case 2:
-        return const ReservationList();
+        return const ReservatingList();
       case 3:
-        return const ReservationContinueList();
+        return const ConfirmWatingList();
       case 4:
-        return const ReservationConfirmList();
-      case 5:
-        return const CancelList();
-      case 6:
         return const CompleteList();
+      case 5:
+        return const ReservationNoAcceptList();
+      case 6:
+        return const CancelList();
       case 7:
         return const TravelInquiryBeforeList();
       case 8:
         return const TravelInquiryAfterList();
       case 9:
+        return const TStatisticBottomNavi();
+      case 10:
         return travel_MyPage(email: email, name: name, tel: tel, pw: pw);
       default:
         return const Center();
@@ -98,7 +104,6 @@ class _MainViewState extends State<travel_index> {
 
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
         elevation: 0,
         title: const Text(
@@ -123,88 +128,129 @@ class _MainViewState extends State<travel_index> {
         shape:
             Border(bottom: BorderSide(width: 3, color: Colors.grey.shade200)),
       ),
-      body: Sidebar(),
+      drawer: buildDrawer(),
+      body: views.elementAt(selectedIndex),
     );
   }
 
-  Row Sidebar() {
-    return Row(
-      children: [
-        Container(
-          color: Colors.grey[200],
-          child: SideNavigationBar(
-            selectedIndex: selectedIndex,
-            items: const [
-              SideNavigationBarItem(
-                icon: Icons.dashboard,
-                label: '메인화면',
+  Drawer buildDrawer() {
+    return Drawer(
+      child: ListView(
+        children: <Widget>[
+          const DrawerHeader(
+            decoration: BoxDecoration(
+              color: Colors.blue,
+            ),
+            child: Text(
+              'AnyStay Menu',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                fontFamily: 'Pretendard',
+                fontWeight: FontWeight.w500,
               ),
-              SideNavigationBarItem(
-                icon: Icons.search_outlined,
-                label: '호텔검색',
+            ),
+          ),
+          _buildDrawerItem(
+            icon: Icons.dashboard,
+            text: '메인화면',
+            index: 0,
+          ),
+          _buildDrawerItem(
+            icon: Icons.search_outlined,
+            text: '호텔검색',
+            index: 1,
+          ),
+          ExpansionTile(
+            leading: const Icon(Icons.list_alt_outlined),
+            title: const Text(
+              '예약',
+              style: TextStyle(
+                fontFamily: 'Pretendard',
+                fontWeight: FontWeight.w500,
               ),
-              SideNavigationBarItem(
-                icon: Icons.list_alt_outlined,
-                label: '예약리스트',
+            ),
+            children: <Widget>[
+              _buildDrawerItem(
+                text: '수락대기',
+                index: 2,
               ),
-              SideNavigationBarItem(
-                icon: Icons.list_alt_outlined,
-                label: '예약진행중 리스트',
+              _buildDrawerItem(
+                text: '컨펌대기',
+                index: 3,
               ),
-              SideNavigationBarItem(
-                icon: Icons.list_alt_outlined,
-                label: '최종컨펌대기 리스트',
+              _buildDrawerItem(
+                text: '컨펌완료',
+                index: 4,
               ),
-              SideNavigationBarItem(
-                icon: Icons.cancel,
-                label: '취소리스트',
+              _buildDrawerItem(
+                text: '예약불가',
+                index: 5,
               ),
-              SideNavigationBarItem(
-                icon: Icons.check,
-                label: '예약완료 리스트',
-              ),
-              SideNavigationBarItem(
-                icon: Icons.question_answer,
-                label: '답변대기 리스트',
-              ),
-              SideNavigationBarItem(
-                icon: Icons.question_answer_outlined,
-                label: '답변완료 리스트',
-              ),
-              SideNavigationBarItem(
-                icon: Icons.person,
-                label: '마이페이지',
+              _buildDrawerItem(
+                text: '취소리스트',
+                index: 6,
               ),
             ],
-            theme: SideNavigationBarTheme(
-              itemTheme: SideNavigationBarItemTheme(
-                  unselectedItemColor: Colors.black,
-                  selectedItemColor: Colors.black26,
-                  iconSize: 32.5,
-                  labelTextStyle:
-                      const TextStyle(fontSize: 15, color: Colors.black)),
-              togglerTheme: SideNavigationBarTogglerTheme.standard(),
-              dividerTheme: SideNavigationBarDividerTheme.standard(),
-            ),
-            onTap: (index) async {
-              if (index == selectedIndex) {
-                await _refreshPage(index);
-              } else {
-                setState(() {
-                  selectedIndex = index;
-                });
-              }
-            },
-            toggler: SideBarToggler(
-                expandIcon: Icons.keyboard_arrow_right,
-                shrinkIcon: Icons.keyboard_arrow_left,
-                onToggle: () {}),
           ),
+          ExpansionTile(
+            leading: const Icon(Icons.question_answer),
+            title: const Text(
+              '문의',
+              style: TextStyle(
+                fontFamily: 'Pretendard',
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            children: <Widget>[
+              _buildDrawerItem(
+                text: '답변대기 리스트',
+                index: 7,
+              ),
+              _buildDrawerItem(
+                text: '답변완료 리스트',
+                index: 8,
+              ),
+            ],
+          ),
+          _buildDrawerItem(
+            icon: CupertinoIcons.graph_circle_fill,
+            text: '통계',
+            index: 9,
+          ),
+          _buildDrawerItem(
+            icon: Icons.person,
+            text: '마이페이지',
+            index: 10,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDrawerItem(
+      {IconData? icon, required String text, required int index}) {
+    return ListTile(
+      leading: icon != null
+          ? Icon(
+              icon,
+              color: selectedIndex == index ? Colors.blue : Colors.black,
+            )
+          : null,
+      title: Text(
+        text,
+        style: TextStyle(
+          fontFamily: 'Pretendard',
+          fontWeight: FontWeight.w500,
+          color: selectedIndex == index ? Colors.blue : Colors.black,
         ),
-        Expanded(
-          child: views.elementAt(selectedIndex),
-        )
-      ],
+      ),
+      onTap: () {
+        setState(() {
+          selectedIndex = index;
+          Navigator.pop(context);
+        });
+      },
     );
   }
 }

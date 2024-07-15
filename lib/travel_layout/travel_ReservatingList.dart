@@ -1,55 +1,50 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_application_hotel/api/hotel_api.dart';
 import 'package:flutter_application_hotel/api/travel_api.dart';
-import 'package:flutter_application_hotel/travel_layout/travel_InquiryPage.dart';
-import 'package:flutter_application_hotel/travel_layout/travel_ReservationDetail.dart';
+import 'package:flutter_application_hotel/hotel_layout/hotel_ReservationDetail.dart';
 import 'package:flutter_application_hotel/travel_layout/TravelInfo.dart';
+import 'package:flutter_application_hotel/travel_layout/travel_ReservatingDetail.dart';
+import 'package:flutter_application_hotel/travel_layout/travel_InquiryPage.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
-class ReservationList extends StatefulWidget {
-  const ReservationList({super.key});
+class ReservatingList extends StatefulWidget {
+  const ReservatingList({super.key});
 
   @override
-  _ReservationListState createState() => _ReservationListState();
+  _ReservatingListState createState() => _ReservatingListState();
 }
 
-class _ReservationListState extends State<ReservationList> {
+class _ReservatingListState extends State<ReservatingList> {
   List<Map<String, dynamic>> _userData = [];
   var reservation_id = "";
-
-  bool isLoading = false;
-  bool hasData = false;
-  dynamic date = "";
-
+  bool isLoading = true; // 데이터 로딩 상태
+  bool hasData = false; // 데이터 유무
   String? travelID;
+  dynamic date;
 
   @override
   void initState() {
     super.initState();
-
     final userData = Provider.of<UserData>(context, listen: false);
     travelID = userData.travelId.toString();
     _fetchUserDataFromApi();
   }
 
   Future<void> _fetchUserDataFromApi() async {
-    setState(() {
-      isLoading = true;
-    });
-
     try {
       var response = await http.post(Uri.parse(TravelApi.resvSelect), body: {
-        'travel_reservation_status': "0",
+        'travel_reservation_status': "1",
         'hotel_reservation_status': "0",
-        "agency_id": travelID,
+        'agency_id': travelID,
       });
 
       if (response.statusCode == 200) {
         var responseBody = jsonDecode(response.body);
 
         if (responseBody['success'] == true) {
+          print(responseBody);
           List<dynamic>? userDataList = responseBody['resv_list'];
 
           setState(() {
@@ -58,11 +53,9 @@ class _ReservationListState extends State<ReservationList> {
                 'reservation_id': userData['reservation_id'].toString(),
                 'inquirer_name': userData['inquirer_name'],
                 'check_out_date': userData['check_out_date'],
-                'agency_id': userData['agency_id'],
                 "travel_reservation_status":
                     userData['travel_reservation_status'],
-                "hotel_reservation_status":
-                    userData['hotel_reservation_status'],
+                "agency_id": userData['agency_id'],
                 "room_count": userData['room_count'].toString(),
                 "night_count": userData['night_count'].toString(),
                 "hotel_id": userData['hotel_id'].toString(),
@@ -74,32 +67,25 @@ class _ReservationListState extends State<ReservationList> {
               };
             }).toList();
 
+            // 데이터가 로드되었으므로 로딩 상태를 false로 설정
             isLoading = false;
+            // 데이터가 있는지 확인하고 상태를 설정
             hasData = _userData.isNotEmpty;
           });
         } else {
-          setState(() {
-            isLoading = false;
-            hasData = false;
-          });
           throw "Failed to fetch user data";
         }
       } else {
         throw "Failed to load user data: ${response.statusCode}";
       }
     } catch (e) {
-      setState(() {
-        isLoading = false;
-        hasData = false;
-      });
       print("Error fetching user data: $e");
     }
   }
 
   Future<void> resvCancel() async {
     try {
-      var response =
-          await http.post(Uri.parse(TravelApi.resvcancelUpdate), body: {
+      var response = await http.post(Uri.parse(HotelApi.resvUpdate), body: {
         'reservation_id': reservation_id,
         'cancel_date': date.toString().replaceAll(",", ""),
       });
@@ -147,7 +133,7 @@ class _ReservationListState extends State<ReservationList> {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ReservationDetail(ReserverInfo: userData),
+        builder: (context) => ReservatingDetail(ReserverInfo: userData),
       ),
     );
 
@@ -155,6 +141,8 @@ class _ReservationListState extends State<ReservationList> {
       setState(() {
         _fetchUserDataFromApi();
       });
+    } else if (result == 1) {
+      _fetchUserDataFromApi();
     }
   }
 
@@ -170,7 +158,7 @@ class _ReservationListState extends State<ReservationList> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          '예약리스트',
+          '수락대기 리스트',
           style: TextStyle(
               fontFamily: 'Pretendard',
               fontSize: 25,
@@ -179,20 +167,21 @@ class _ReservationListState extends State<ReservationList> {
         ),
         automaticallyImplyLeading: false,
         elevation: 2,
-        backgroundColor: Colors.purple[200],
+        backgroundColor: Colors.teal[200],
         shadowColor: Colors.black,
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(
+              child: CircularProgressIndicator(), // 데이터 로딩 중이면 로딩 표시
+            )
           : hasData
               ? Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: ListView.separated(
-                    separatorBuilder: (context, index) =>
-                        const Divider(height: 10),
                     itemCount: _userData.length,
-                    itemBuilder: (context, index) {
-                      var user = _userData[index];
+                    itemBuilder: (BuildContext context, int index) {
+                      Map<String, dynamic> user = _userData[index];
+
                       return ListTile(
                         title: Text(
                           user['inquirer_name'].toString(),
@@ -214,6 +203,7 @@ class _ReservationListState extends State<ReservationList> {
                           children: [
                             TextButton(
                               onPressed: () {
+                                print(user);
                                 viewDetail(user);
                               },
                               child: const Text(
@@ -225,21 +215,21 @@ class _ReservationListState extends State<ReservationList> {
                             ),
                             TextButton(
                               onPressed: () {
-                                setState(() {
-                                  reservation_id = user['reservation_id'];
-                                });
-                                _cancleConfirm();
+                                inquiryInput(user);
                               },
                               child: const Text(
-                                '취소',
+                                '문의하기',
                                 style: TextStyle(
-                                    color: Colors.red,
+                                    color: Colors.amber,
                                     fontFamily: 'Pretendard'),
                               ),
                             ),
                           ],
                         ),
                       );
+                    },
+                    separatorBuilder: (BuildContext context, int index) {
+                      return const Divider();
                     },
                   ),
                 )

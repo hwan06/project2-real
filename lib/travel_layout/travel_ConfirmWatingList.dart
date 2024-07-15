@@ -1,44 +1,52 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_application_hotel/api/hotel_api.dart';
 import 'package:flutter_application_hotel/api/travel_api.dart';
-import 'package:flutter_application_hotel/hotel_layout/hotel_ReservationDetail.dart';
 import 'package:flutter_application_hotel/travel_layout/TravelInfo.dart';
-import 'package:flutter_application_hotel/travel_layout/travel_ContinueDetail.dart';
+import 'package:flutter_application_hotel/travel_layout/travel_ConfirmWatingDetail.dart';
 import 'package:flutter_application_hotel/travel_layout/travel_InquiryPage.dart';
+import 'package:flutter_application_hotel/travel_layout/travel_NoAcceptDetail.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
-class ReservationContinueList extends StatefulWidget {
-  const ReservationContinueList({super.key});
+class ConfirmWatingList extends StatefulWidget {
+  const ConfirmWatingList({super.key});
 
   @override
-  _ReservationContinueListState createState() =>
-      _ReservationContinueListState();
+  _ConfirmWatingListState createState() => _ConfirmWatingListState();
 }
 
-class _ReservationContinueListState extends State<ReservationContinueList> {
-  List<Map<String, dynamic>> _userData = [];
+class _ConfirmWatingListState extends State<ConfirmWatingList> {
+  List<Map<String, dynamic>> _userData = []; // 데이터베이스에서 가져온 사용자 데이터
   var reservation_id = "";
-  bool isLoading = true; // 데이터 로딩 상태
-  bool hasData = false; // 데이터 유무
+  var hotelID = "";
+  bool isLoading = false;
+  bool hasData = false;
   String? travelID;
-  dynamic date;
 
   @override
   void initState() {
     super.initState();
+
+    // Provider를 통해 UserData 가져오기
     final userData = Provider.of<UserData>(context, listen: false);
+
+    // UserData에서 사용자 정보 가져오기
     travelID = userData.travelId.toString();
+    // 비동기적으로 데이터를 가져오는 시뮬레이션 (예: 네트워크 요청 등)
     _fetchUserDataFromApi();
   }
 
   Future<void> _fetchUserDataFromApi() async {
+    setState(() {
+      isLoading = true;
+    });
+
     try {
       var response = await http.post(Uri.parse(TravelApi.resvSelect), body: {
         'travel_reservation_status': "1",
-        'hotel_reservation_status': "0",
-        'agency_id': travelID,
+        'hotel_reservation_status': "1",
+        "agency_id": travelID,
       });
 
       if (response.statusCode == 200) {
@@ -46,6 +54,7 @@ class _ReservationContinueListState extends State<ReservationContinueList> {
 
         if (responseBody['success'] == true) {
           List<dynamic>? userDataList = responseBody['resv_list'];
+          print(userDataList);
 
           setState(() {
             _userData = userDataList!.map((userData) {
@@ -67,27 +76,37 @@ class _ReservationContinueListState extends State<ReservationContinueList> {
               };
             }).toList();
 
-            // 데이터가 로드되었으므로 로딩 상태를 false로 설정
             isLoading = false;
-            // 데이터가 있는지 확인하고 상태를 설정
             hasData = _userData.isNotEmpty;
           });
         } else {
+          setState(() {
+            isLoading = false;
+            hasData = false;
+          });
           throw "Failed to fetch user data";
         }
       } else {
+        setState(() {
+          isLoading = false;
+          hasData = false;
+        });
         throw "Failed to load user data: ${response.statusCode}";
       }
     } catch (e) {
+      setState(() {
+        isLoading = false;
+        hasData = false;
+      });
       print("Error fetching user data: $e");
     }
   }
 
   Future<void> resvCancel() async {
     try {
-      var response = await http.post(Uri.parse(HotelApi.resvUpdate), body: {
+      var response =
+          await http.post(Uri.parse(TravelApi.resvcancelUpdate), body: {
         'reservation_id': reservation_id,
-        'cancel_date': date.toString().replaceAll(",", ""),
       });
 
       if (response.statusCode == 200) {
@@ -100,8 +119,9 @@ class _ReservationContinueListState extends State<ReservationContinueList> {
 
   Future<void> _cancleConfirm() async {
     return showDialog<void>(
+      //다이얼로그 위젯 소환
       context: context,
-      barrierDismissible: false,
+      barrierDismissible: false, // 다이얼로그 이외의 바탕 눌러도 안꺼지도록 설정
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('예약을 취소하시겠습니까?'),
@@ -112,7 +132,6 @@ class _ReservationContinueListState extends State<ReservationContinueList> {
                 style: TextStyle(fontFamily: 'Pretendard', color: Colors.red),
               ),
               onPressed: () {
-                date = DateTime.now();
                 Navigator.of(context).pop();
                 resvCancel();
               },
@@ -133,7 +152,7 @@ class _ReservationContinueListState extends State<ReservationContinueList> {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ContinueDetail(ReserverInfo: userData),
+        builder: (context) => ConfirmWatingDetail(ReserverInfo: userData),
       ),
     );
 
@@ -146,9 +165,11 @@ class _ReservationContinueListState extends State<ReservationContinueList> {
 
   void inquiryInput(Map<String, dynamic> userData) {
     Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => InquiryInput(userData: userData)));
+      context,
+      MaterialPageRoute(
+        builder: (context) => InquiryInput(userData: userData),
+      ),
+    );
   }
 
   @override
@@ -156,28 +177,27 @@ class _ReservationContinueListState extends State<ReservationContinueList> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          '예약진행중 리스트',
+          '컨펌대기 리스트',
           style: TextStyle(
-              fontFamily: 'Pretendard',
-              fontSize: 25,
-              fontWeight: FontWeight.w600,
-              color: Colors.black),
+            fontFamily: 'Pretendard',
+            fontWeight: FontWeight.w600,
+            fontSize: 25,
+          ),
         ),
         automaticallyImplyLeading: false,
         elevation: 2,
-        backgroundColor: Colors.teal[200],
-        shadowColor: Colors.black,
+        backgroundColor: Colors.purple[200],
       ),
       body: isLoading
-          ? const Center(
-              child: CircularProgressIndicator(), // 데이터 로딩 중이면 로딩 표시
-            )
+          ? const Center(child: CircularProgressIndicator())
           : hasData
               ? Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: ListView.separated(
                     itemCount: _userData.length,
-                    itemBuilder: (BuildContext context, int index) {
+                    separatorBuilder: (context, index) =>
+                        const Divider(), // 각 항목 사이에 구분선 추가
+                    itemBuilder: (context, index) {
                       Map<String, dynamic> user = _userData[index];
 
                       return ListTile(
@@ -201,7 +221,6 @@ class _ReservationContinueListState extends State<ReservationContinueList> {
                           children: [
                             TextButton(
                               onPressed: () {
-                                print(user);
                                 viewDetail(user);
                               },
                               child: const Text(
@@ -213,21 +232,21 @@ class _ReservationContinueListState extends State<ReservationContinueList> {
                             ),
                             TextButton(
                               onPressed: () {
-                                inquiryInput(user);
+                                setState(() {
+                                  reservation_id = user['reservation_id'];
+                                });
+                                _cancleConfirm();
                               },
                               child: const Text(
-                                '문의하기',
+                                '취소',
                                 style: TextStyle(
-                                    color: Colors.amber,
+                                    color: Colors.red,
                                     fontFamily: 'Pretendard'),
                               ),
                             ),
                           ],
                         ),
                       );
-                    },
-                    separatorBuilder: (BuildContext context, int index) {
-                      return const Divider();
                     },
                   ),
                 )

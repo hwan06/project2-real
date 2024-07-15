@@ -1,17 +1,18 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_application_hotel/travel_layout/travel_Update.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_application_hotel/api/travel_api.dart';
 
-class ReservationDetail extends StatefulWidget {
+class ReservatingDetail extends StatefulWidget {
   final Map<String, dynamic> ReserverInfo;
-  const ReservationDetail({
+  const ReservatingDetail({
     super.key,
     required this.ReserverInfo,
   });
 
   @override
-  State<ReservationDetail> createState() => _ReservationDetailState();
+  State<ReservatingDetail> createState() => _ReservatingDetailState();
 }
 
 List<dynamic> data = [];
@@ -29,70 +30,9 @@ String checkOutDate = "";
 String totalPrice = "";
 String resvStatus = "";
 var reservation_id = "";
+dynamic date;
 
-class _ReservationDetailState extends State<ReservationDetail> {
-  Future<void> _resvConfirm() async {
-    try {
-      var response = await http.post(Uri.parse(TravelApi.resvUpdate), body: {
-        'reservation_id': reservationId,
-        'travel_reservation_status': "1",
-        'hotel_reservation_status': "0",
-      });
-
-      if (response.statusCode == 200) {
-        if (mounted) {
-          Navigator.pop(context, true); // true 값을 반환하며 현재 페이지 닫기
-        }
-        setState(() {
-          // _fetchUserDataFromApi();
-        });
-      }
-    } catch (e) {}
-  }
-
-  Future<void> _Confirm() async {
-    return showDialog<void>(
-      //다이얼로그 위젯 소환
-      context: context,
-      barrierDismissible: false, // 다이얼로그 이외의 바탕 눌러도 안꺼지도록 설정
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text(
-            '예약확정을 진행하시겠습니까?',
-            style: TextStyle(
-                fontFamily: 'Pretendard', fontWeight: FontWeight.w700),
-          ),
-          content: const SingleChildScrollView(),
-          actions: [
-            TextButton(
-              child: const Text(
-                '확인',
-                style: TextStyle(
-                    fontFamily: 'Pretendard', fontWeight: FontWeight.w700),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-                _resvConfirm();
-              },
-            ),
-            TextButton(
-              child: const Text(
-                '취소',
-                style: TextStyle(
-                    fontFamily: 'Pretendard',
-                    fontWeight: FontWeight.w700,
-                    color: Colors.red),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
+class _ReservatingDetailState extends State<ReservatingDetail> {
   @override
   void initState() {
     // TODO: implement initState
@@ -110,6 +50,65 @@ class _ReservationDetailState extends State<ReservationDetail> {
     checkOutDate = widget.ReserverInfo['check_out_date'];
     totalPrice = widget.ReserverInfo['hotel_price'].toString();
     resvStatus = widget.ReserverInfo['travel_reservation_status'];
+  }
+
+  void cancelResv() async {
+    try {
+      var res = await http.post(Uri.parse(TravelApi.resvcancelUpdate), body: {
+        'reservation_id': reservationId,
+        'cancel_date': date.toString().replaceAll(",", ""),
+      });
+
+      if (res.statusCode == 200) {
+        Navigator.pop(context, 1);
+      }
+    } catch (e) {}
+  }
+
+  void showAlert() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text(
+            "취소하시겠습니까?",
+            style: TextStyle(
+              fontFamily: 'Pretendard',
+              fontSize: 28,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  date = DateTime.now();
+                });
+                cancelResv();
+                Navigator.pop(context);
+              },
+              child: const Text(
+                "확인",
+                style: TextStyle(
+                    color: Colors.red, fontFamily: 'Pretendard', fontSize: 12),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text(
+                "취소",
+                style: TextStyle(
+                    color: Colors.black,
+                    fontFamily: 'Pretendard',
+                    fontSize: 12),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -295,11 +294,37 @@ class _ReservationDetailState extends State<ReservationDetail> {
                   width: 250,
                   child: OutlinedButton(
                     onPressed: () {
-                      setState(() {
-                        reservation_id =
-                            widget.ReserverInfo['reservation_id'].toString();
-                      });
-                      _Confirm();
+                      showAlert();
+                    },
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(5),
+                        ),
+                      ),
+                      side: const BorderSide(
+                        width: 2,
+                        color: Colors.red,
+                      ),
+                    ),
+                    child: const Text(
+                      '취소하기',
+                      style: TextStyle(
+                          fontFamily: 'Pretendard',
+                          fontSize: 18,
+                          color: Colors.red),
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                SizedBox(
+                  width: 250,
+                  child: OutlinedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
                     },
                     style: OutlinedButton.styleFrom(
                       backgroundColor: Colors.white,
@@ -314,59 +339,11 @@ class _ReservationDetailState extends State<ReservationDetail> {
                       ),
                     ),
                     child: const Text(
-                      '예약확정',
+                      '뒤로가기',
                       style: TextStyle(
                           fontFamily: 'Pretendard',
                           fontSize: 18,
                           color: Colors.green),
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                SizedBox(
-                  width: 250,
-                  child: OutlinedButton(
-                    onPressed: () async {
-                      final result = await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => UpdatePage(
-                            reservationID: reservationId,
-                            name: inquiryName,
-                            phone: inquiryTel,
-                            startDate: startDate,
-                            endDate: endDate,
-                            roomcount: roomCount,
-                            guest: guestCount,
-                            night: nightCount,
-                            price: totalPrice,
-                          ),
-                        ),
-                      );
-                      if (result == true) {
-                        Navigator.pop(context, true); // 현재 페이지 닫기 및 true 값 반환
-                      }
-                    },
-                    style: OutlinedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(5),
-                        ),
-                      ),
-                      side: const BorderSide(
-                        color: Colors.amber,
-                        width: 2,
-                      ),
-                    ),
-                    child: const Text(
-                      '수정하기',
-                      style: TextStyle(
-                          fontFamily: 'Pretendard',
-                          fontSize: 18,
-                          color: Colors.amber),
                     ),
                   ),
                 ),
