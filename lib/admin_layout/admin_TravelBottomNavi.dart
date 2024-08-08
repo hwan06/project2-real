@@ -1,16 +1,18 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_application_hotel/travel_layout/travel_TravelStatisticIn.dart';
-import 'package:flutter_application_hotel/travel_layout/travel_TravelStatisticOut.dart';
+import 'package:flutter_application_hotel/admin_layout/admin_TravelStatisticIn.dart';
+import 'package:flutter_application_hotel/admin_layout/admin_TravelStatisticOut.dart';
+import 'package:flutter_application_hotel/hotel_layout/hotel_CancelStatisticIn.dart';
+import 'package:flutter_application_hotel/hotel_layout/hotel_CancelStatisticOut.dart';
 
-class AStatisticBottomNavi extends StatefulWidget {
-  const AStatisticBottomNavi({super.key});
+class ATStatisticBottomNavi extends StatefulWidget {
+  const ATStatisticBottomNavi({super.key});
 
   @override
-  State<AStatisticBottomNavi> createState() => _AStatisticBottomNaviState();
+  State<ATStatisticBottomNavi> createState() => _ATStatisticBottomNaviState();
 }
 
-class _AStatisticBottomNaviState extends State<AStatisticBottomNavi> {
+class _ATStatisticBottomNaviState extends State<ATStatisticBottomNavi> {
   final PageController _pageController = PageController();
   final List<Widget> _pages = [
     const TravelStatisticIn(),
@@ -34,6 +36,13 @@ class _AStatisticBottomNaviState extends State<AStatisticBottomNavi> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text("여행사 통계"),
+        shadowColor: Colors.black,
+        backgroundColor: Colors.white,
+        elevation: 1,
+        automaticallyImplyLeading: false,
+      ),
       body: SafeArea(
         child: PageView(
           controller: _pageController,

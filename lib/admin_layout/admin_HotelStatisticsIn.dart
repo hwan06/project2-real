@@ -11,14 +11,14 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-class TravelStatisticIn extends StatefulWidget {
-  const TravelStatisticIn({super.key});
+class HotelStatisticIn extends StatefulWidget {
+  const HotelStatisticIn({super.key});
 
   @override
-  State<TravelStatisticIn> createState() => _TravelStatisticInState();
+  State<HotelStatisticIn> createState() => _HotelStatisticInState();
 }
 
-class _TravelStatisticInState extends State<TravelStatisticIn> {
+class _HotelStatisticInState extends State<HotelStatisticIn> {
   List<dynamic> cancelList = [];
   String hotelID = "";
   DateTimeRange? selectedDateRange;
@@ -47,7 +47,7 @@ class _TravelStatisticInState extends State<TravelStatisticIn> {
   Future<void> selectCancelGraph(
       String fromDate, String toDate, String hotelID) async {
     try {
-      var res = await http.post(Uri.parse(AdminApi.hotelAllGraph), body: {
+      var res = await http.post(Uri.parse(AdminApi.travelAllGraph), body: {
         'from_date': '20000101',
         'to_date': DateFormat('yyyyMMdd').format(DateTime.now()),
       });
@@ -74,7 +74,7 @@ class _TravelStatisticInState extends State<TravelStatisticIn> {
   Future<void> selectAllGraph() async {
     print(hotelID);
     try {
-      var res = await http.post(Uri.parse(AdminApi.hotelAllGraph), body: {
+      var res = await http.post(Uri.parse(AdminApi.travelAllGraph), body: {
         'from_date': '20000101',
         'to_date': DateFormat('yyyyMMdd').format(DateTime.now()),
       });
@@ -221,9 +221,9 @@ class _TravelStatisticInState extends State<TravelStatisticIn> {
                           ),
                           ...cancelList.map((data) {
                             return TableRow(children: [
-                              _buildRowValue(data['agency_name'].toString()),
+                              _buildRowValue(data['hotel_name'].toString()),
                               _buildRowValue1("${data['total_reservations']}건",
-                                  data['agency_id']),
+                                  data['hotel_id']),
                               _buildRowValue("${data['confirm']}건"),
                               _buildRowValue("${data['active_reservations']}건"),
                               _buildRowValue("${data['cancel']}건"),

@@ -9,10 +9,17 @@ import 'package:intl/intl.dart'; // intl 패키지 추가
 
 class CheckInDetail extends StatefulWidget {
   final String hotelID;
-  const CheckInDetail({
-    super.key,
-    required this.hotelID,
-  });
+  final DateTime? fromDate; // 타입 변경
+  final DateTime? toDate; // 타입 변경
+  final String sep;
+  final bool isFullRange;
+  const CheckInDetail(
+      {super.key,
+      required this.hotelID,
+      required this.fromDate,
+      required this.toDate,
+      required this.sep,
+      required this.isFullRange});
 
   @override
   State<CheckInDetail> createState() => _CheckInDetailState();
@@ -33,37 +40,80 @@ class _CheckInDetailState extends State<CheckInDetail> {
 
   Future<void> _fetchUserDataFromApi() async {
     try {
-      var response =
-          await http.post(Uri.parse(TravelApi.travelStaticDetail), body: {
-        'agency_id': travelID,
-        'hotel_id': hotelID,
-      });
+      if (widget.isFullRange == false) {
+        var response =
+            await http.post(Uri.parse(TravelApi.travelStaticDetail), body: {
+          'agency_id': travelID,
+          'hotel_id': widget.hotelID,
+          'from_date': widget.fromDate != null
+              ? DateFormat('yyyyMMdd').format(widget.fromDate!)
+              : "",
+          'to_date': widget.toDate != null
+              ? DateFormat('yyyyMMdd').format(widget.toDate!)
+              : "",
+          'sep': widget.sep
+        });
 
-      if (response.statusCode == 200) {
-        var responseBody = jsonDecode(response.body);
-        print(responseBody);
+        if (response.statusCode == 200) {
+          var responseBody = jsonDecode(response.body);
 
-        if (responseBody['success'] == true) {
-          List<dynamic>? userDataList = responseBody['resv_list'];
+          if (responseBody['success'] == true) {
+            List<dynamic>? userDataList = responseBody['resv_list'];
 
-          setState(() {
-            _userData = userDataList!.map((userData) {
-              return {
-                'check_out_date': userData['check_out_date'],
-                "travel_reservation_status":
-                    userData['travel_reservation_status'],
-                "hotel_reservation_status":
-                    userData['hotel_reservation_status'],
-                "room_count": userData['room_count'].toString(),
-                "night_count": userData['night_count'].toString(),
-                "hotel_price": userData['hotel_price'].toString(),
-                "guest_count": userData['guest_count'].toString(),
-                "check_in_date": userData['check_in_date'],
-                "hotel_name": userData['hotel_name'],
-                "hotel_id": userData['hotel_id'],
-              };
-            }).toList();
-          });
+            setState(() {
+              _userData = userDataList!.map((userData) {
+                return {
+                  'check_out_date': userData['check_out_date'],
+                  "travel_reservation_status":
+                      userData['travel_reservation_status'],
+                  "hotel_reservation_status":
+                      userData['hotel_reservation_status'],
+                  "room_count": userData['room_count'].toString(),
+                  "night_count": userData['night_count'].toString(),
+                  "hotel_price": userData['hotel_price'].toString(),
+                  "guest_count": userData['guest_count'].toString(),
+                  "check_in_date": userData['check_in_date'],
+                  "hotel_name": userData['hotel_name'],
+                  "hotel_id": userData['hotel_id'],
+                };
+              }).toList();
+            });
+          }
+        }
+      } else {
+        print(33);
+        var response =
+            await http.post(Uri.parse(TravelApi.travelStaticDetail), body: {
+          'agency_id': travelID,
+          'hotel_id': hotelID,
+        });
+
+        if (response.statusCode == 200) {
+          var responseBody = jsonDecode(response.body);
+          print(responseBody);
+
+          if (responseBody['success'] == true) {
+            List<dynamic>? userDataList = responseBody['resv_list'];
+
+            setState(() {
+              _userData = userDataList!.map((userData) {
+                return {
+                  'check_out_date': userData['check_out_date'],
+                  "travel_reservation_status":
+                      userData['travel_reservation_status'],
+                  "hotel_reservation_status":
+                      userData['hotel_reservation_status'],
+                  "room_count": userData['room_count'].toString(),
+                  "night_count": userData['night_count'].toString(),
+                  "hotel_price": userData['hotel_price'].toString(),
+                  "guest_count": userData['guest_count'].toString(),
+                  "check_in_date": userData['check_in_date'],
+                  "hotel_name": userData['hotel_name'],
+                  "hotel_id": userData['hotel_id'],
+                };
+              }).toList();
+            });
+          }
         }
       }
     } catch (e) {
@@ -79,6 +129,12 @@ class _CheckInDetailState extends State<CheckInDetail> {
     UserData userData = Provider.of<UserData>(context, listen: false);
     travelID = userData.travelId;
     hotelID = widget.hotelID;
+    print(travelID);
+    print(hotelID);
+    print(widget.fromDate);
+    print(widget.toDate);
+    print(widget.sep);
+
     _fetchUserDataFromApi();
   }
 

@@ -28,6 +28,8 @@ class _TravelStatisticInState extends State<TravelStatisticIn> {
   int totalNightCount = 0;
   int confirmedReservations = 0;
   int reservating = 0;
+  DateTime? fromDate1;
+  DateTime? toDate1;
   String totalPrice = '';
   String hotelID = '';
 
@@ -42,6 +44,8 @@ class _TravelStatisticInState extends State<TravelStatisticIn> {
     super.initState();
     final userData = Provider.of<UserData>(context, listen: false);
     travelID = userData.travelId.toString();
+    fromDate1 = DateTime(2000);
+    toDate1 = DateTime(2050);
     selectAllGraph();
   }
 
@@ -84,15 +88,35 @@ class _TravelStatisticInState extends State<TravelStatisticIn> {
         var response = jsonDecode(res.body);
         print(response);
 
-        setState(() {
-          cancelList = response['listArray'];
-          totalReservations = response['total_reservations'];
-          canceledReservations = response['canceled_reservations'];
-          reservating = response['active_reservations'];
-          totalNightCount = response['total_night_count'];
-          confirmedReservations = response['confirmed_reservations'];
-          totalPrice = response['total_price'].toString();
-        });
+        if (res.statusCode == 200) {
+          var response = jsonDecode(res.body);
+          print(response);
+          if (response['listArray'].length == 0) {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return const AlertDialog(
+                  title: Text(
+                    "검색된 결과가 존재하지 않습니다.",
+                    style: TextStyle(color: Colors.black),
+                  ),
+                );
+              },
+            );
+          } else {
+            setState(() {
+              cancelList = response['listArray'];
+              totalReservations = response['total_reservations'];
+              canceledReservations = response['canceled_reservations'];
+              totalNightCount = response['total_night_count'];
+              confirmedReservations = response['confirmed_reservations'];
+              totalPrice = response['total_price'].toString();
+              reservating = response['active_reservations'];
+            });
+          }
+
+          print("cancelList: $cancelList");
+        }
         print("cancelList: $cancelList");
       }
     } catch (e) {
@@ -113,6 +137,8 @@ class _TravelStatisticInState extends State<TravelStatisticIn> {
         isFullRangeSelected = false;
         var fromDate = DateFormat('yyyyMMdd').format(picked.start);
         var toDate = DateFormat('yyyyMMdd').format(picked.end);
+        fromDate1 = picked.start;
+        toDate1 = picked.end;
         selectCancelGraph(fromDate, toDate, travelID);
       });
     }
@@ -122,9 +148,12 @@ class _TravelStatisticInState extends State<TravelStatisticIn> {
     var now = DateTime.now();
     var startDate = subtract ? now.subtract(Duration(days: days)) : now;
     var endDate = subtract ? now : now.add(Duration(days: days));
+
     setState(() {
       selectedDateRange = DateTimeRange(start: startDate, end: endDate);
       isFullRangeSelected = false;
+      fromDate1 = startDate;
+      toDate1 = endDate;
       selectCancelGraph(
         DateFormat('yyyyMMdd').format(startDate),
         DateFormat('yyyyMMdd').format(endDate),
@@ -139,6 +168,8 @@ class _TravelStatisticInState extends State<TravelStatisticIn> {
         start: DateTime(2000),
         end: DateTime.now(),
       );
+      fromDate1 = DateTime(2000);
+      toDate1 = DateTime(2050);
       isFullRangeSelected = true;
       selectAllGraph();
     });
@@ -239,9 +270,14 @@ class _TravelStatisticInState extends State<TravelStatisticIn> {
                           ),
                           ...cancelList.map((data) {
                             return TableRow(children: [
-                              _buildRowValue("${data['hotel_name']}건"),
-                              _buildRowValu1("${data['total_reservations']}건",
-                                  data['hotel_id']),
+                              _buildRowValue("${data['hotel_name']}"),
+                              _buildRowValu1(
+                                  "${data['total_reservations']}건",
+                                  data['hotel_id'],
+                                  fromDate1,
+                                  toDate1,
+                                  "check_in",
+                                  isFullRangeSelected),
                               _buildRowValue("${data['confirm']}건"),
                               _buildRowValue("${data['active_reservations']}건"),
                               _buildRowValue("${data['cancel']}건"),
@@ -270,6 +306,8 @@ class _TravelStatisticInState extends State<TravelStatisticIn> {
       child: ElevatedButton(
         onPressed: () {
           if (isFullRange) {
+            fromDate1 = DateTime(2000);
+            toDate1 = DateTime(2050);
             _selectFullRange();
           } else {
             _updateDateRange(days, subtract: subtract);
@@ -397,7 +435,14 @@ class _TravelStatisticInState extends State<TravelStatisticIn> {
   }
 }
 
-Widget _buildRowValu1(String text, String hotelID) {
+Widget _buildRowValu1(
+  String text,
+  String hotelID,
+  DateTime? fromDate,
+  DateTime? toDate,
+  String sep,
+  bool isFullRange,
+) {
   const TextStyle textStyle = TextStyle(
     fontFamily: 'Pretendard',
     fontSize: 18,
@@ -418,6 +463,10 @@ Widget _buildRowValu1(String text, String hotelID) {
                 MaterialPageRoute(
                     builder: (context) => CheckInDetail(
                           hotelID: hotelID,
+                          fromDate: fromDate,
+                          toDate: toDate,
+                          sep: sep,
+                          isFullRange: isFullRange,
                         )));
           },
           child: MouseRegion(

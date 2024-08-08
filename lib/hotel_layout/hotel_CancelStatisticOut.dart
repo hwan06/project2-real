@@ -27,6 +27,8 @@ class _HotelStatisticOutState extends State<HotelStatisticOut> {
   int totalNightCount = 0;
   int confirmedReservations = 0;
   int reservating = 0;
+  DateTime? fromDate1;
+  DateTime? toDate1;
   String totalPrice = "";
   String travelID = "";
 
@@ -41,6 +43,9 @@ class _HotelStatisticOutState extends State<HotelStatisticOut> {
     super.initState();
     final userData = Provider.of<UserData>(context, listen: false);
     hotelID = userData.hotelID.toString();
+    fromDate1 = DateTime(2000);
+    toDate1 = DateTime.now();
+    isFullRangeSelected = true;
     selectAllGraph();
   }
 
@@ -91,6 +96,8 @@ class _HotelStatisticOutState extends State<HotelStatisticOut> {
           reservating = response['active_reservations'];
           confirmedReservations = response['confirmed_reservations'];
           totalPrice = response['total_price'].toString();
+          fromDate1 = DateTime(2000);
+          toDate1 = DateTime.now();
         });
         print("cancelList: $cancelList");
       }
@@ -124,6 +131,8 @@ class _HotelStatisticOutState extends State<HotelStatisticOut> {
     setState(() {
       selectedDateRange = DateTimeRange(start: startDate, end: endDate);
       isFullRangeSelected = false;
+      fromDate1 = startDate;
+      toDate1 = endDate;
       selectCancelGraph(
         DateFormat('yyyyMMdd').format(startDate),
         DateFormat('yyyyMMdd').format(endDate),
@@ -138,6 +147,8 @@ class _HotelStatisticOutState extends State<HotelStatisticOut> {
         start: DateTime(2000),
         end: DateTime.now(),
       );
+      fromDate1 = DateTime(2000);
+      toDate1 = DateTime.now();
       isFullRangeSelected = true;
       selectAllGraph();
     });
@@ -222,8 +233,13 @@ class _HotelStatisticOutState extends State<HotelStatisticOut> {
                           ...cancelList.map((data) {
                             return TableRow(children: [
                               _buildRowValue(data['agency_name'].toString()),
-                              _buildRowValue1("${data['total_reservations']}건",
-                                  data['agency_id']),
+                              _buildRowValue1(
+                                  "${data['total_reservations']}건",
+                                  data['agency_id'],
+                                  fromDate1,
+                                  toDate1,
+                                  "check_out",
+                                  isFullRangeSelected),
                               _buildRowValue("${data['confirm']}건"),
                               _buildRowValue("${data['active_reservations']}건"),
                               _buildRowValue("${data['cancel']}건"),
@@ -379,7 +395,14 @@ class _HotelStatisticOutState extends State<HotelStatisticOut> {
   }
 }
 
-Widget _buildRowValue1(String text, String travelID) {
+Widget _buildRowValue1(
+  String text,
+  String travelID,
+  DateTime? fromDate,
+  DateTime? toDate,
+  String sep,
+  bool isFullRange,
+) {
   const TextStyle textStyle = TextStyle(
       fontFamily: 'Pretendard',
       fontSize: 18,
@@ -398,6 +421,10 @@ Widget _buildRowValue1(String text, String travelID) {
                 MaterialPageRoute(
                     builder: (context) => HotelCheckInDetail(
                           travelID: travelID,
+                          fromDate: fromDate,
+                          toDate: toDate,
+                          sep: sep,
+                          isFullRange: isFullRange,
                         )));
           },
           child: MouseRegion(

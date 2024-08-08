@@ -25,4 +25,5 @@ class AdminApi {
   static const hotelUploadList = "$hostConnect/admin/hotel_bu_check.jsp";
   static const travelUploadList = "$hostConnect/admin/travel_bu_check.jsp";
   static const accept1 = "$hostConnect/admin/bu_approval.jsp";
+  static const hStatisticDetail = "$hostConnect/admin/hotel_resv_all.jsp";
 }

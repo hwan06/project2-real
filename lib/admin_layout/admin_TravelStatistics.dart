@@ -115,18 +115,6 @@ class _TravelCancleStatisticsState extends State<TravelCancleStatistics> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          "호텔통계 페이지",
-          style: TextStyle(
-            fontFamily: 'Pretendard',
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        elevation: 1.0,
-        shadowColor: Colors.black,
-        automaticallyImplyLeading: false,
-      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

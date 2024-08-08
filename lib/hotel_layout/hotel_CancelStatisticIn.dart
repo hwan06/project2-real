@@ -29,6 +29,8 @@ class _HotelStatisticInState extends State<HotelStatisticIn> {
   int reservating = 0;
   String totalPrice = "";
   String travelID = "";
+  DateTime? fromDate1;
+  DateTime? toDate1;
 
   static const TextStyle textStyle = TextStyle(
       fontFamily: 'Pretendard',
@@ -41,6 +43,10 @@ class _HotelStatisticInState extends State<HotelStatisticIn> {
     super.initState();
     final userData = Provider.of<UserData>(context, listen: false);
     hotelID = userData.hotelID.toString();
+    fromDate1 = DateTime(2000);
+    toDate1 = DateTime.now();
+    isFullRangeSelected = true;
+    DateTime.now();
     selectAllGraph();
   }
 
@@ -56,16 +62,29 @@ class _HotelStatisticInState extends State<HotelStatisticIn> {
       if (res.statusCode == 200) {
         var response = jsonDecode(res.body);
         print(response);
-
-        setState(() {
-          cancelList = response['listArray'];
-          totalReservations = response['total_reservations'];
-          canceledReservations = response['canceled_reservations'];
-          totalNightCount = response['total_night_count'];
-          reservating = response['active_reservations'];
-          confirmedReservations = response['confirmed_reservations'];
-          totalPrice = response['total_price'];
-        });
+        if (response['listArray'].length == 0) {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return const AlertDialog(
+                title: Text(
+                  "검색된 결과가 존재하지 않습니다.",
+                  style: TextStyle(color: Colors.black),
+                ),
+              );
+            },
+          );
+        } else {
+          setState(() {
+            cancelList = response['listArray'];
+            totalReservations = response['total_reservations'];
+            canceledReservations = response['canceled_reservations'];
+            totalNightCount = response['total_night_count'];
+            reservating = response['active_reservations'];
+            confirmedReservations = response['confirmed_reservations'];
+            totalPrice = response['total_price'];
+          });
+        }
       }
     } catch (e) {
       // Handle error
@@ -91,6 +110,8 @@ class _HotelStatisticInState extends State<HotelStatisticIn> {
           reservating = response['active_reservations'];
           confirmedReservations = response['confirmed_reservations'];
           totalPrice = response['total_price'].toString();
+          fromDate1 = DateTime(2000);
+          toDate1 = DateTime(2050);
         });
         print("cancelList: $cancelList");
       }
@@ -112,6 +133,8 @@ class _HotelStatisticInState extends State<HotelStatisticIn> {
         isFullRangeSelected = false;
         var fromDate = DateFormat('yyyyMMdd').format(picked.start);
         var toDate = DateFormat('yyyyMMdd').format(picked.end);
+        fromDate1 = picked.start;
+        toDate1 = picked.end;
         selectCancelGraph(fromDate, toDate, hotelID);
       });
     }
@@ -121,9 +144,12 @@ class _HotelStatisticInState extends State<HotelStatisticIn> {
     var now = DateTime.now();
     var startDate = subtract ? now.subtract(Duration(days: days)) : now;
     var endDate = subtract ? now : now.add(Duration(days: days));
+
     setState(() {
       selectedDateRange = DateTimeRange(start: startDate, end: endDate);
       isFullRangeSelected = false;
+      fromDate1 = startDate;
+      toDate1 = endDate;
       selectCancelGraph(
         DateFormat('yyyyMMdd').format(startDate),
         DateFormat('yyyyMMdd').format(endDate),
@@ -138,6 +164,8 @@ class _HotelStatisticInState extends State<HotelStatisticIn> {
         start: DateTime(2000),
         end: DateTime.now(),
       );
+      fromDate1 = DateTime(2000);
+      toDate1 = DateTime(2050);
       isFullRangeSelected = true;
       selectAllGraph();
     });
@@ -222,8 +250,13 @@ class _HotelStatisticInState extends State<HotelStatisticIn> {
                           ...cancelList.map((data) {
                             return TableRow(children: [
                               _buildRowValue(data['agency_name'].toString()),
-                              _buildRowValue1("${data['total_reservations']}건",
-                                  data['agency_id']),
+                              _buildRowValue1(
+                                  "${data['total_reservations']}건",
+                                  data['agency_id'],
+                                  fromDate1,
+                                  toDate1,
+                                  "check_in",
+                                  isFullRangeSelected),
                               _buildRowValue("${data['confirm']}건"),
                               _buildRowValue("${data['active_reservations']}건"),
                               _buildRowValue("${data['cancel']}건"),
@@ -252,8 +285,10 @@ class _HotelStatisticInState extends State<HotelStatisticIn> {
       child: ElevatedButton(
         onPressed: () {
           if (isFullRange) {
+            isFullRangeSelected = true;
             _selectFullRange();
           } else {
+            isFullRangeSelected = false;
             _updateDateRange(days, subtract: subtract);
           }
         },
@@ -379,7 +414,14 @@ class _HotelStatisticInState extends State<HotelStatisticIn> {
   }
 }
 
-Widget _buildRowValue1(String text, String travelID) {
+Widget _buildRowValue1(
+  String text,
+  String travelID,
+  DateTime? fromDate,
+  DateTime? toDate,
+  String sep,
+  bool isFullRange,
+) {
   const TextStyle textStyle = TextStyle(
       fontFamily: 'Pretendard',
       fontSize: 18,
@@ -393,11 +435,17 @@ Widget _buildRowValue1(String text, String travelID) {
       child: Center(
         child: GestureDetector(
           onTap: () {
+            print(fromDate);
+            print(toDate);
             Navigator.push(
                 context,
                 MaterialPageRoute(
                     builder: (context) => HotelCheckInDetail(
                           travelID: travelID,
+                          fromDate: fromDate,
+                          toDate: toDate,
+                          sep: sep,
+                          isFullRange: isFullRange,
                         )));
           },
           child: MouseRegion(

@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_hotel/admin_layout/admin_HotelBottomNavi.dart';
 import 'package:flutter_application_hotel/admin_layout/admin_HotelUploadList.dart';
+import 'package:flutter_application_hotel/admin_layout/admin_TravelBottomNavi.dart';
 import 'package:flutter_application_hotel/admin_layout/admin_TravelUploadList.dart';
 import 'package:flutter_application_hotel/admin_layout/admin_TraveluserConfirm.dart';
 import 'package:flutter_application_hotel/admin_layout/admin_TravelStatistics.dart';
@@ -31,8 +33,8 @@ class _AdminIndexState extends State<AdminIndex> {
       const HoteluserConfirm(),
       const TravelUserInfo(),
       const HotelUserInfo(),
-      const TravelCancleStatistics(),
-      const HotelStatisticsOut(),
+      const AHStatisticBottomNavi(),
+      const ATStatisticBottomNavi(),
     ];
   }
 
