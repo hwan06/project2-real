@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_application_hotel/api/hotel_name_api.dart';
+import 'package:flutter_application_hotel/api/travel_api.dart';
 import 'travel_HotelSelect.dart';
 import 'package:http/http.dart' as http;
 
@@ -19,8 +19,8 @@ bool? success;
 class _searchBarState extends State<searchBar> {
   Future<void> querySearch(String query) async {
     try {
-      var response = await http
-          .get(Uri.parse('${HotelNameApi.hotelName}?hotel_name=$query'));
+      var response =
+          await http.get(Uri.parse('${TravelApi.hotelName}?hotel_name=$query'));
 
       if (response.statusCode == 200) {
         print('200');

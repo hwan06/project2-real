@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_application_hotel/api/travel_api.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_application_hotel/api/hotel_reservation.dart';
 import 'package:flutter_application_hotel/travel_layout/TravelInfo.dart';
 import 'package:provider/provider.dart';
 
@@ -110,7 +110,7 @@ class _ReservationState extends State<Reservation> {
   hotelReservation() async {
     try {
       var res = await http.post(
-        Uri.parse(HotelReservation.reservation),
+        Uri.parse(TravelApi.reservation),
         body: {
           "hotel_id":
               widget.hotelList[0]['hotel_id'].toString(), // int를 String으로 변환

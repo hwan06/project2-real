@@ -17,8 +17,6 @@ class TravelApi {
   static const inquiryUpdate = "$hostConnect/travel/room_inquiry_update.jsp";
   static const emailVal = "$hostConnect/travel/validate_email.jsp";
   static const pwEdit = "$hostConnect/travel/password_change.jsp";
-  static const update = "$hostConnect/travel/inquiry_info_update.jsp";
-  static const cancleStatistics = "$hostConnect/travel/hotel_cancel.jsp";
   static const inquiryDelete = "$hostConnect/travel/room_inquiry_delete.jsp";
   static const cancelGraph = "$hostConnect/travel/statistics.jsp";
   static const cancelGraph2 = "$hostConnect/travel/statistics_in.jsp";
@@ -26,4 +24,8 @@ class TravelApi {
   static const travelUpload = "$hostConnect/travel/travel_info_insert.jsp";
   static const travelList = "$hostConnect/travel/travel_list.jsp";
   static const travelStaticDetail = "$hostConnect/travel/resv_all.jsp";
+
+  static const travelImageSelect = "$hostConnect/travel/download_image.jsp";
+  static const hotelName = "$hostConnect/travel/hotel_search.jsp";
+  static const reservation = "$hostConnect/travel/inquiry_info_insert.jsp";
 }

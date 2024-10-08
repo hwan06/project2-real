@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_application_hotel/api/image.dart';
+import 'package:flutter_application_hotel/api/hotel_api.dart';
 import 'package:flutter_application_hotel/travel_layout/TravelInfo.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_application_hotel/api/admin_api.dart';
@@ -63,28 +63,6 @@ class _TravelUploadListState extends State<TravelUploadList> {
     } catch (e) {
       print("Error fetching user data: $e");
       // 에러 처리
-    }
-  }
-
-  Future<void> fetchImage(String hotelId) async {
-    var url = Uri.parse(
-        ImageApi.hotelImageSelect); // 예: http://example.com/api/image/6
-
-    var headers = {
-      "Content-Type": "application/x-www-form-urlencoded",
-    };
-    var body = {"hotel_id": "1"};
-
-    var response = await http.post(url, headers: headers, body: body);
-
-    if (response.statusCode == 200) {
-      var data = json.decode(response.body);
-      setState(() {
-        _base64Image = data['image'];
-        image = Image.memory(base64Decode(_base64Image!));
-      });
-    } else {
-      print('Failed to load image with status: ${response.statusCode}');
     }
   }
 

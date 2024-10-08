@@ -27,4 +27,5 @@ class HotelApi {
   static const hotelUpload = "$hostConnect/hotel/hotel_info_insert.jsp";
   static const hotelList = "$hostConnect/hotel/hotel_list.jsp";
   static const hotelStatisticDetail = "$hostConnect/hotel/resv_all.jsp";
+  static const hotelImageUpload = "$hostConnect/hotel/hotel_br.jsp";
 }

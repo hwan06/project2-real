@@ -5,7 +5,6 @@ import 'package:flutter_application_hotel/admin_layout/admin_HotelUploadList.dar
 import 'package:flutter_application_hotel/admin_layout/admin_TravelBottomNavi.dart';
 import 'package:flutter_application_hotel/admin_layout/admin_TravelUploadList.dart';
 import 'package:flutter_application_hotel/admin_layout/admin_TraveluserConfirm.dart';
-import 'package:flutter_application_hotel/admin_layout/admin_TravelStatistics.dart';
 import 'package:flutter_application_hotel/admin_layout/admin_HotelUserInfo.dart';
 import 'package:flutter_application_hotel/admin_layout/admin_HotelStatisticsOut.dart';
 import 'package:flutter_application_hotel/admin_layout/admin_travelUserInfo.dart';

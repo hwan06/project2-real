@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_application_hotel/api/image.dart';
 import 'package:flutter_application_hotel/api/travel_api.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
@@ -23,7 +22,7 @@ class _SignState extends State<TravelSign> {
   bool isButtonActive = false;
 
   TextEditingController agencyNameController = TextEditingController();
-  TextEditingController agencyAddressController = TextEditingController();
+
   TextEditingController agencyTelController = TextEditingController();
   TextEditingController agencyCEONameController = TextEditingController();
 
@@ -50,30 +49,30 @@ class _SignState extends State<TravelSign> {
     });
   }
 
-  Future<void> imageUpload() async {
-    if (_base64Image == null) return;
+  // Future<void> imageUpload() async {
+  //   if (_base64Image == null) return;
 
-    var url = Uri.parse(ImageApi.travelImageUpload);
-    var headers = {
-      "Content-Type": "application/x-www-form-urlencoded; charset=utf-8"
-    };
+  //   var url = Uri.parse(ImageApi.travelImageUpload);
+  //   var headers = {
+  //     "Content-Type": "application/x-www-form-urlencoded; charset=utf-8"
+  //   };
 
-    var response = await http.post(url,
-        headers: headers, body: {"agency_id": "6", "image": _base64Image});
+  //   var response = await http.post(url,
+  //       headers: headers, body: {"agency_id": "6", "image": _base64Image});
 
-    if (response.statusCode == 200) {
-      print(response.body);
-      print(response.statusCode);
-      print('Image uploaded successfully');
-    } else {
-      print('Image upload failed with status: ${response.statusCode}');
-      print('Response body: ${response.body}'); // 응답 내용 출력
-    }
-  }
+  //   if (response.statusCode == 200) {
+  //     print(response.body);
+  //     print(response.statusCode);
+  //     print('Image uploaded successfully');
+  //   } else {
+  //     print('Image upload failed with status: ${response.statusCode}');
+  //     print('Response body: ${response.body}'); // 응답 내용 출력
+  //   }
+  // }
 
   Future<void> fetchImage() async {
     var url = Uri.parse(
-        ImageApi.travelImageSelect); // 예: http://example.com/api/image/6
+        TravelApi.travelImageSelect); // 예: http://example.com/api/image/6
 
     var headers = {
       "Content-Type": "application/x-www-form-urlencoded",
@@ -133,10 +132,9 @@ class _SignState extends State<TravelSign> {
       if (res.statusCode == 200) {
         var resSignup = jsonDecode(res.body);
         if (resSignup['success'] == true) {
-          await imageUpload(); // 이미지 업로드 메서드 호출
+          // await imageUpload(); // 이미지 업로드 메서드 호출
           setState(() {
             agencyNameController.clear();
-            agencyAddressController.clear();
             agencyCEONameController.clear();
             agencyTelController.clear();
             complete();
@@ -167,7 +165,7 @@ class _SignState extends State<TravelSign> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          '여행사 회원 가입',
+          '여행사 등록',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
@@ -342,24 +340,24 @@ class _SignState extends State<TravelSign> {
                           ),
                         ],
                       ),
-                      Container(
-                        padding: const EdgeInsets.only(top: 20.0),
-                        child: Column(
-                          children: [
-                            ElevatedButton(
-                              onPressed: _pickImage,
-                              child: const Text('이미지 업로드'),
-                            ),
-                            _image != null
-                                ? Image.file(
-                                    _image!,
-                                    width: 100,
-                                    height: 100,
-                                  )
-                                : const Text('이미지가 선택되지 않았습니다.'),
-                          ],
-                        ),
-                      ),
+                      // Container(
+                      //   padding: const EdgeInsets.only(top: 20.0),
+                      //   child: Column(
+                      //     children: [
+                      //       ElevatedButton(
+                      //         onPressed: _pickImage,
+                      //         child: const Text('이미지 업로드'),
+                      //       ),
+                      //       _image != null
+                      //           ? Image.file(
+                      //               _image!,
+                      //               width: 100,
+                      //               height: 100,
+                      //             )
+                      //           : const Text('이미지가 선택되지 않았습니다.'),
+                      //     ],
+                      //   ),
+                      // ),
                       Container(
                         padding: const EdgeInsets.only(top: 20.0),
                         child: SizedBox(
@@ -370,37 +368,37 @@ class _SignState extends State<TravelSign> {
                               if (!formKey.currentState!.validate()) {
                                 return;
                               }
-                              if (_image == null) {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return AlertDialog(
-                                      title: const Text(
-                                        "이미지가 선택되지 않았습니다.",
-                                        style: TextStyle(
-                                            fontFamily: 'Pretendard',
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w500),
-                                      ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                          },
-                                          child: const Text(
-                                            "닫기",
-                                            style: TextStyle(
-                                              fontFamily: 'Pretendard',
-                                              fontSize: 15,
-                                            ),
-                                          ),
-                                        )
-                                      ],
-                                    );
-                                  },
-                                );
-                                return;
-                              }
+                              // if (_image == null) {
+                              //   showDialog(
+                              //     context: context,
+                              //     builder: (context) {
+                              //       return AlertDialog(
+                              //         title: const Text(
+                              //           "이미지가 선택되지 않았습니다.",
+                              //           style: TextStyle(
+                              //               fontFamily: 'Pretendard',
+                              //               fontSize: 18,
+                              //               fontWeight: FontWeight.w500),
+                              //         ),
+                              //         actions: [
+                              //           TextButton(
+                              //             onPressed: () {
+                              //               Navigator.pop(context);
+                              //             },
+                              //             child: const Text(
+                              //               "닫기",
+                              //               style: TextStyle(
+                              //                 fontFamily: 'Pretendard',
+                              //                 fontSize: 15,
+                              //               ),
+                              //             ),
+                              //           )
+                              //         ],
+                              //       );
+                              //     },
+                              //   );
+                              //   return;
+                              // }
                               saveInfo();
                             },
                             style: ElevatedButton.styleFrom(

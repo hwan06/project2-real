@@ -29,7 +29,6 @@ class _MessageState extends State<Message> {
   bool isEditing = false;
   var travelID = "";
   var message = "";
-  var hotelID = "";
   List<Map<String, dynamic>> _inquiryData = [];
   bool isLoading = false;
   bool hasData = false;

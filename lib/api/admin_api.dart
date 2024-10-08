@@ -18,12 +18,9 @@ class AdminApi {
       "$hostConnect/admin/travel_member_info_delete.jsp";
   static const hotelAccountDelete =
       "$hostConnect/admin/hotel_member_info_delete.jsp";
-  static const travelCancelGraph = "$hostConnect/admin/travel_statistics.jsp";
   static const travelAllGraph = "$hostConnect/admin/travel_all_statistics.jsp";
-  static const hotelCancelGraph = "$hostConnect/admin/hotel_statistics.jsp";
   static const hotelAllGraph = "$hostConnect/admin/hotel_all_statistics.jsp";
   static const hotelUploadList = "$hostConnect/admin/hotel_bu_check.jsp";
   static const travelUploadList = "$hostConnect/admin/travel_bu_check.jsp";
   static const accept1 = "$hostConnect/admin/bu_approval.jsp";
-  static const hStatisticDetail = "$hostConnect/admin/hotel_resv_all.jsp";
 }

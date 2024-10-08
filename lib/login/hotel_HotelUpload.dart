@@ -3,17 +3,13 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_application_hotel/api/hotel_api.dart';
-import 'package:flutter_application_hotel/api/image.dart';
 import 'package:flutter_application_hotel/api/travel_api.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_application_hotel/travel_layout/TravelInfo.dart';
 import 'package:flutter_application_hotel/travel_layout/travel_HotelSearch.dart';
-import 'package:get/utils.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 class HotelUpload extends StatefulWidget {
   const HotelUpload({super.key});
@@ -73,7 +69,7 @@ class _SignState extends State<HotelUpload> {
   Future<void> imageUpload() async {
     if (_base64Image == null) return;
 
-    var url = Uri.parse(ImageApi.hotelImageUpload);
+    var url = Uri.parse(HotelApi.hotelImageUpload);
     var headers = {
       "Content-Type": "application/x-www-form-urlencoded; charset=utf-8"
     };
@@ -88,28 +84,6 @@ class _SignState extends State<HotelUpload> {
     } else {
       print('Image upload failed with status: ${response.statusCode}');
       print('Response body: ${response.body}'); // 응답 내용 출력
-    }
-  }
-
-  Future<void> fetchImage(String hotelId) async {
-    var url = Uri.parse(
-        ImageApi.hotelImageSelect); // 예: http://example.com/api/image/6
-
-    var headers = {
-      "Content-Type": "application/x-www-form-urlencoded",
-    };
-    var body = {"hotel_id": "1"};
-
-    var response = await http.post(url, headers: headers, body: body);
-
-    if (response.statusCode == 200) {
-      var data = json.decode(response.body);
-      setState(() {
-        _base64Image = data['image'];
-        image = Image.memory(base64Decode(_base64Image!));
-      });
-    } else {
-      print('Failed to load image with status: ${response.statusCode}');
     }
   }
 

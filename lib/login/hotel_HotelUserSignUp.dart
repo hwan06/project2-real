@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_hotel/api/hotel_api.dart';
-import 'package:flutter_application_hotel/api/image.dart';
 import 'package:flutter_application_hotel/api/travel_api.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_application_hotel/login/travel_Login.dart';
